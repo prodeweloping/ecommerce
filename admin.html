@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ram Store Admin | Manage Orders & Parcel Tracking</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #fef7f0;
+            padding: 2rem;
+        }
+        .admin-container { max-width: 1400px; margin: 0 auto; }
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e9cfbb;
+        }
+        .admin-header h1 { display: flex; align-items: center; gap: 12px; color: #7b3a1a; }
+        .stats { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .stat-badge { background: #2c1a0e; color: white; padding: 6px 16px; border-radius: 40px; font-size: 0.8rem; }
+        .refresh-btn { background: #b5521d; border: none; padding: 8px 20px; border-radius: 40px; color: white; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .section-title { font-size: 1.2rem; margin: 1rem 0 1rem 0; display: flex; align-items: center; gap: 8px; }
+        .orders-grid { display: flex; flex-direction: column; gap: 1rem; }
+        .order-card {
+            background: white;
+            border-radius: 24px;
+            padding: 1.2rem;
+            border: 1px solid #f0e2d4;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            position: relative;
+        }
+        .order-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 1rem; gap: 8px; }
+        .tracking-badge {
+            font-family: monospace;
+            background: #2c1a0e;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+        }
+        .parcel-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .parcel-input {
+            flex: 2;
+            padding: 8px 16px;
+            border-radius: 60px;
+            border: 1px solid #e9cfbb;
+            font-family: monospace;
+        }
+        .order-date { font-size: 0.75rem; color: #8a684b; }
+        .order-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin: 1rem 0; }
+        .detail-box { background: #fefbf7; border-radius: 20px; padding: 0.8rem; }
+        .detail-label { font-size: 0.7rem; text-transform: uppercase; color: #b2764a; font-weight: 600; }
+        .status-select { padding: 8px 16px; border-radius: 60px; border: 1px solid #e9cfbb; font-weight: 600; cursor: pointer; }
+        .update-btn, .set-parcel-btn { background: #2c1a0e; color: white; border: none; padding: 8px 20px; border-radius: 60px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+        .update-btn:hover, .set-parcel-btn:hover { background: #b5521d; }
+        .delete-btn { background: #e05a2a; color: white; border: none; padding: 8px 20px; border-radius: 60px; cursor: pointer; margin-left: 10px; display: inline-flex; align-items: center; gap: 6px; }
+        .delete-btn:hover { background: #c0392b; }
+        .two-columns { display: flex; gap: 2rem; flex-wrap: wrap; }
+        .column { flex: 1; min-width: 300px; }
+        .pending-card { border-left: 5px solid #e05a2a; }
+        .delivered-card { border-left: 5px solid #2c7a2c; }
+        .status-badge { display: inline-block; padding: 4px 14px; border-radius: 30px; font-size: 0.7rem; font-weight: 600; }
+        .status-ordered { background: #f0c9a3; color: #7b3a1a; }
+        .status-shipped { background: #b8cfec; color: #1a4f7a; }
+        .status-out_for_delivery { background: #ffe0a3; color: #b55b2c; }
+        .status-delivered { background: #b8e0b8; color: #2a6b2a; }
+        .shipping-progress { display: flex; justify-content: space-between; margin: 10px 0; font-size: 0.65rem; }
+        .progress-step { text-align: center; flex: 1; }
+        .progress-step.active { color: #b5521d; font-weight: bold; }
+        .progress-step.completed { color: #2c7a2c; }
+        .btn-loading { opacity: 0.7; cursor: not-allowed; }
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid white;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .delete-modal, .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.2s;
+        }
+        .delete-modal.active, .login-overlay.active { visibility: visible; opacity: 1; }
+        .delete-card, .login-card {
+            background: white;
+            border-radius: 48px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 420px;
+            text-align: center;
+        }
+        .delete-card input, .login-card input {
+            width: 100%;
+            padding: 14px;
+            margin: 15px 0;
+            border-radius: 60px;
+            border: 1px solid #e9dbcf;
+            text-align: center;
+        }
+        .warning { color: #e05a2a; margin-bottom: 15px; }
+        .delete-buttons, .login-buttons { display: flex; gap: 12px; }
+        .confirm-delete { background: #e05a2a; color: white; border: none; padding: 12px; border-radius: 60px; cursor: pointer; flex: 1; font-weight: 700; }
+        .cancel-delete { background: #e9dfd6; color: #4f2a10; border: none; padding: 12px; border-radius: 60px; cursor: pointer; flex: 1; font-weight: 700; }
+        footer { margin-top: 2rem; text-align: center; font-size: 0.7rem; color: #b88c68; }
+    </style>
+</head>
+<body>
+<div class="admin-container">
+    <div class="admin-header">
+        <h1><i class="fas fa-chalkboard-user"></i> Ram Store Admin</h1>
+        <div class="stats">
+            <div class="stat-badge" id="pendingCount">Pending: --</div>
+            <div class="stat-badge" id="deliveredCount">Delivered: --</div>
+            <button class="refresh-btn" id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
+            <button class="refresh-btn" id="logoutAdminBtn" style="background:#e05a2a;"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+    </div>
+
+    <div class="two-columns">
+        <div class="column">
+            <div class="section-title"><i class="fas fa-clock"></i> 📋 Pending Orders</div>
+            <div id="pendingOrdersList" class="orders-grid">Loading orders...</div>
+        </div>
+        <div class="column">
+            <div class="section-title"><i class="fas fa-check-circle"></i> ✅ Delivered Orders</div>
+            <div id="deliveredOrdersList" class="orders-grid">Loading orders...</div>
+        </div>
+    </div>
+    <footer><i class="fas fa-truck-fast"></i> Update status & Add Parcel Tracking Number (Courier ID) → Customer sees it</footer>
+</div>
+
+<div id="deleteModal" class="delete-modal">
+    <div class="delete-card">
+        <i class="fas fa-trash-alt" style="font-size: 3rem; color: #e05a2a;"></i>
+        <h3 style="margin: 15px 0;">Delete Order</h3>
+        <div class="warning"><i class="fas fa-exclamation-triangle"></i> This action cannot be undone!</div>
+        <p>Type <strong style="color:#e05a2a;">4698</strong> to confirm</p>
+        <input type="text" id="deleteConfirmCode" placeholder="Enter 4698" maxlength="4">
+        <div class="delete-buttons">
+            <button class="cancel-delete" onclick="closeDeleteModal()">Cancel</button>
+            <button class="confirm-delete" id="confirmDeleteBtn">Delete</button>
+        </div>
+    </div>
+</div>
+
+<div id="loginOverlay" class="login-overlay">
+    <div class="login-card">
+        <i class="fas fa-lock" style="font-size: 2.5rem; color: #b5521d;"></i>
+        <h2 style="margin: 15px 0;">Admin Login</h2>
+        <input type="email" id="adminEmail" placeholder="Email" value="admin09@gmail.com">
+        <input type="password" id="adminPassword" placeholder="Password" value="854698">
+        <button id="adminLoginBtn" style="width:100%; padding:12px; background:#b5521d; color:white; border:none; border-radius:60px; font-weight:700; cursor:pointer;"><i class="fas fa-sign-in-alt"></i> Login</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, updateDoc, deleteDoc, doc, orderBy, query } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCIe9xLDNE7keqjXLmvR3xHVXqPp-ZrYwo",
+        authDomain: "order-96de7.firebaseapp.com",
+        projectId: "order-96de7",
+        storageBucket: "order-96de7.firebasestorage.app",
+        messagingSenderId: "373948973174",
+        appId: "1:373948973174:web:e93cafd6c84b38706ddf57"
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const ADMIN_EMAIL = "admin09@gmail.com";
+    const statusOptions = ["ordered", "shipped", "out_for_delivery", "delivered"];
+    const statusLabels = { ordered: "📦 Ordered", shipped: "🚚 Shipped", out_for_delivery: "🏠 Out for delivery", delivered: "✅ Delivered" };
+    const statusMessages = {
+        ordered: "Order confirmed and being processed",
+        shipped: "Package has left the courier facility",
+        out_for_delivery: "Package is out for delivery today",
+        delivered: "Package delivered successfully"
+    };
+
+    let isAdminLoggedIn = false;
+    let pendingDeleteOrderId = null;
+    const loginOverlay = document.getElementById("loginOverlay");
+    const deleteModal = document.getElementById("deleteModal");
+
+    function showLoading(btnId) {
+        const btn = document.getElementById(btnId);
+        if (btn && !btn.disabled) {
+            const originalText = btn.innerHTML;
+            btn.setAttribute('data-original', originalText);
+            btn.innerHTML = '<span class="spinner"></span> Loading...';
+            btn.disabled = true;
+        }
+    }
+
+    function hideLoading(btnId) {
+        const btn = document.getElementById(btnId);
+        if (btn) {
+            const original = btn.getAttribute('data-original');
+            if (original) btn.innerHTML = original;
+            btn.disabled = false;
+        }
+    }
+
+    window.openDeleteModal = (orderId) => {
+        pendingDeleteOrderId = orderId;
+        document.getElementById("deleteConfirmCode").value = "";
+        deleteModal.classList.add("active");
+    };
+
+    window.closeDeleteModal = () => {
+        deleteModal.classList.remove("active");
+        pendingDeleteOrderId = null;
+    };
+
+    async function executeDeleteOrder() {
+        if (!pendingDeleteOrderId) return;
+        const confirmCode = document.getElementById("deleteConfirmCode").value;
+        if (confirmCode !== "4698") {
+            alert("❌ Invalid code! Type 4698 to delete.");
+            return;
+        }
+        const confirmBtn = document.getElementById("confirmDeleteBtn");
+        const originalText = confirmBtn.innerHTML;
+        confirmBtn.innerHTML = '<span class="spinner"></span> Deleting...';
+        confirmBtn.disabled = true;
+        try {
+            await deleteDoc(doc(db, "orders", pendingDeleteOrderId));
+            alert("✅ Order deleted successfully!");
+            closeDeleteModal();
+            loadOrders();
+        } catch (error) {
+            alert("❌ Delete failed: " + error.message);
+        } finally {
+            confirmBtn.innerHTML = originalText;
+            confirmBtn.disabled = false;
+        }
+    }
+
+    document.getElementById("confirmDeleteBtn").onclick = executeDeleteOrder;
+
+    async function setParcelNumber(orderId) {
+        const input = document.getElementById(`parcel_input_${orderId}`);
+        const parcelNumber = input.value.trim();
+        if (!parcelNumber) {
+            alert("Please enter a parcel tracking number");
+            return;
+        }
+        const btn = document.getElementById(`parcel_btn_${orderId}`);
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner"></span> Saving...';
+        btn.disabled = true;
+        try {
+            await updateDoc(doc(db, "orders", orderId), { parcelTrackingNumber: parcelNumber });
+            alert(`✅ Parcel tracking number ${parcelNumber} added!\nCustomer can now see it.`);
+            loadOrders();
+        } catch (error) {
+            alert("Failed: " + error.message);
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    }
+
+    async function loadOrders() {
+        if (!isAdminLoggedIn) return;
+        try {
+            const q = query(collection(db, "orders"), orderBy("date", "desc"));
+            const snapshot = await getDocs(q);
+            const pending = [], delivered = [];
+            snapshot.forEach(docSnap => {
+                const order = { id: docSnap.id, ...docSnap.data() };
+                const tracking = order.trackingStatus || "ordered";
+                if (tracking === "delivered") delivered.push(order);
+                else pending.push(order);
+            });
+            renderPending(pending);
+            renderDelivered(delivered);
+            document.getElementById("pendingCount").innerHTML = `Pending: ${pending.length}`;
+            document.getElementById("deliveredCount").innerHTML = `Delivered: ${delivered.length}`;
+        } catch (err) {
+            console.error("Error:", err);
+            document.getElementById("pendingOrdersList").innerHTML = "<div style='text-align:center;padding:2rem;color:red;'>Error loading orders</div>";
+        }
+    }
+
+    function renderPending(orders) {
+        const container = document.getElementById("pendingOrdersList");
+        if (orders.length === 0) { 
+            container.innerHTML = "<div style='text-align:center;padding:2rem;'>🎉 No pending orders</div>"; 
+            return; 
+        }
+        let html = "";
+        orders.forEach(order => {
+            const currentStatus = order.trackingStatus || "ordered";
+            const statusIndex = statusOptions.indexOf(currentStatus);
+            const trackingNum = order.trackingNumber || `RAM01${order.id.slice(0, 10)}`;
+            const currentParcel = order.parcelTrackingNumber || "";
+            
+            html += `
+                <div class="order-card pending-card">
+                    <div class="order-header">
+                        <div><span class="tracking-badge"><i class="fas fa-barcode"></i> ${trackingNum}</span></div>
+                        <span class="order-date">${order.date?.toDate?.()?.toLocaleString() || "Just now"}</span>
+                        <span class="status-badge status-${currentStatus.replace(/_/g, '-')}">${statusLabels[currentStatus]}</span>
+                    </div>
+                    <div class="shipping-progress">
+                        <div class="progress-step ${statusIndex >= 0 ? 'completed' : ''}">📦 Ordered</div>
+                        <div class="progress-step ${statusIndex >= 1 ? 'completed' : ''} ${statusIndex === 1 ? 'active' : ''}">🚚 Shipped</div>
+                        <div class="progress-step ${statusIndex >= 2 ? 'completed' : ''} ${statusIndex === 2 ? 'active' : ''}">🏠 Out for delivery</div>
+                        <div class="progress-step ${statusIndex >= 3 ? 'completed' : ''} ${statusIndex === 3 ? 'active' : ''}">✅ Delivered</div>
+                    </div>
+                    <div class="order-details">
+                        <div class="detail-box"><div class="detail-label">Customer</div><div><strong>${order.customerName || "Guest"}</strong></div><div style="font-size:0.7rem;">${order.customerEmail || ""}</div></div>
+                        <div class="detail-box"><div class="detail-label">Address</div><div style="font-size:0.85rem;">${order.address?.substring(0, 100) || "No address"}</div></div>
+                        <div class="detail-box"><div class="detail-label">Items</div><div>${order.items?.map(i => i.name).join(", ") || "-"}</div><div><strong>Total: ₹${order.totalAmount || 0}</strong></div></div>
+                    </div>
+                    <div class="parcel-input-group">
+                        <input type="text" id="parcel_input_${order.id}" class="parcel-input" placeholder="Parcel Tracking Number (e.g., INDIA123456)" value="${currentParcel}">
+                        <button class="set-parcel-btn" id="parcel_btn_${order.id}" onclick="window.setParcelNumber('${order.id}')"><i class="fas fa-truck"></i> Set Parcel ID</button>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <select id="statusSelect_${order.id}" class="status-select">
+                            ${statusOptions.map(opt => `<option value="${opt}" ${currentStatus === opt ? 'selected' : ''}>${statusLabels[opt]} - ${statusMessages[opt]}</option>`).join('')}
+                        </select>
+                        <button class="update-btn" onclick="window.updateOrderStatus('${order.id}')"><i class="fas fa-save"></i> Update</button>
+                        <button class="delete-btn" onclick="window.openDeleteModal('${order.id}')"><i class="fas fa-trash-alt"></i> Delete</button>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    function renderDelivered(orders) {
+        const container = document.getElementById("deliveredOrdersList");
+        if (orders.length === 0) { 
+            container.innerHTML = "<div style='text-align:center;padding:2rem;'>📭 No delivered orders</div>"; 
+            return; 
+        }
+        let html = "";
+        orders.forEach(order => {
+            const trackingNum = order.trackingNumber || `RAM01${order.id.slice(0, 10)}`;
+            const parcelNum = order.parcelTrackingNumber || "Not set";
+            html += `
+                <div class="order-card delivered-card">
+                    <div class="order-header">
+                        <div><span class="tracking-badge"><i class="fas fa-barcode"></i> ${trackingNum}</span></div>
+                        <span class="order-date">${order.date?.toDate?.()?.toLocaleString() || "Recent"}</span>
+                        <span class="status-badge status-delivered">✅ Delivered</span>
+                    </div>
+                    <div class="order-details">
+                        <div class="detail-box"><div class="detail-label">Customer</div><div><strong>${order.customerName || "Guest"}</strong></div></div>
+                        <div class="detail-box"><div class="detail-label">Parcel Tracking</div><div><strong><i class="fas fa-shipping-fast"></i> ${parcelNum}</strong></div></div>
+                        <div class="detail-box"><div class="detail-label">Items</div><div>${order.items?.map(i => i.name).join(", ") || "-"}<br><strong>₹${order.totalAmount}</strong></div></div>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <button class="delete-btn" onclick="window.openDeleteModal('${order.id}')"><i class="fas fa-trash-alt"></i> Delete Order</button>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    window.updateOrderStatus = async (orderId) => {
+        const select = document.getElementById(`statusSelect_${orderId}`);
+        if (!select) return;
+        const newStatus = select.value;
+        const btn = document.querySelector(`button[onclick="window.updateOrderStatus('${orderId}')"]`);
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner"></span> Updating...';
+        btn.disabled = true;
+        try {
+            await updateDoc(doc(db, "orders", orderId), { trackingStatus: newStatus, status: newStatus });
+            alert(`✅ Status updated to ${statusLabels[newStatus]}\n${statusMessages[newStatus]}`);
+            loadOrders();
+        } catch(e) { 
+            alert("Update failed: " + e.message); 
+        } finally {
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
+        }
+    };
+
+    window.setParcelNumber = setParcelNumber;
+
+    document.getElementById("refreshBtn").addEventListener("click", loadOrders);
+    document.getElementById("logoutAdminBtn").addEventListener("click", async () => {
+        await signOut(auth);
+        isAdminLoggedIn = false;
+        loginOverlay.classList.add("active");
+    });
+
+    document.getElementById("adminLoginBtn").onclick = async () => {
+        const email = document.getElementById("adminEmail").value;
+        const password = document.getElementById("adminPassword").value;
+        const btn = document.getElementById("adminLoginBtn");
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner"></span> Logging in...';
+        btn.disabled = true;
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            if (email === ADMIN_EMAIL) {
+                isAdminLoggedIn = true;
+                loginOverlay.classList.remove("active");
+                loadOrders();
+            } else {
+                alert("Access denied. Admin only.");
+                await signOut(auth);
+            }
+        } catch(e) {
+            alert("Login failed: " + e.message);
+        } finally {
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
+        }
+    };
+
+    onAuthStateChanged(auth, (user) => {
+        if (user && user.email === ADMIN_EMAIL) {
+            isAdminLoggedIn = true;
+            loginOverlay.classList.remove("active");
+            loadOrders();
+        } else {
+            isAdminLoggedIn = false;
+            loginOverlay.classList.add("active");
+        }
+    });
+</script>
+</body>
+</html>
