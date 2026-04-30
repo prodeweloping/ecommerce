@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Ram Store Tharad | Pro Developing </title>
+    <title>Ram Store Tharad | Authentic Gujarati Snacks</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <style>
@@ -23,7 +23,6 @@
             flex-direction: column;
         }
 
-        /* Navbar fixed */
         .navbar {
             display: flex;
             justify-content: space-between;
@@ -48,7 +47,7 @@
         }
 
         .logo i { background: none; color: #b85b28; font-size: 1.8rem; }
-        .admin-badge {
+        .store-badge {
             background: #2c1a0e;
             color: #f0cfb5;
             font-size: 0.7rem;
@@ -90,7 +89,6 @@
             justify-content: center;
         }
 
-        /* MAIN CONTENT - FLEX CENTERED, NO SCROLL */
         .main-content {
             flex: 1;
             display: flex;
@@ -100,7 +98,6 @@
             overflow: hidden;
         }
 
-        /* PRODUCTS GRID - EXACT 4 PRODUCTS IN ONE ROW, NO WRAP, NO SCROLL */
         .products {
             display: flex;
             flex-direction: row;
@@ -182,11 +179,10 @@
             font-size: 0.85rem;
             margin-top: auto;
         }
-
         .buy-btn:hover { background: #9b4a1c; gap: 12px; }
 
-        /* PREVIEW MODAL */
-        .preview-modal {
+        /* Preview Modal */
+        .preview-modal, .auth-modal-global {
             position: fixed;
             top: 0;
             left: 0;
@@ -202,7 +198,7 @@
             opacity: 0;
             transition: visibility 0.2s, opacity 0.2s;
         }
-        .preview-modal.active { visibility: visible; opacity: 1; }
+        .preview-modal.active, .auth-modal-global.active { visibility: visible; opacity: 1; }
         .preview-container {
             background: white;
             width: 90%;
@@ -213,9 +209,7 @@
             flex-direction: row;
             flex-wrap: wrap;
             box-shadow: 0 40px 60px rgba(0, 0, 0, 0.4);
-            animation: zoomFade 0.3s ease;
         }
-        @keyframes zoomFade { from { transform: scale(0.96); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .preview-image {
             flex: 1.2;
             min-width: 260px;
@@ -235,7 +229,7 @@
         .preview-add { background: #2c1a0e; border: none; padding: 12px 24px; border-radius: 60px; color: white; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 10px; }
         .preview-close { background: #f0e2d4; border: none; padding: 12px 24px; border-radius: 60px; font-weight: 600; cursor: pointer; }
 
-        /* DRAWERS */
+        /* Drawers */
         .profile-drawer, .cart-drawer {
             position: fixed;
             top: 0;
@@ -255,15 +249,63 @@
         .profile-header, .cart-header { padding: 1.2rem 1.5rem; border-bottom: 1px solid #f0e2d4; display: flex; justify-content: space-between; align-items: center; }
         .order-history-section { flex: 1; overflow-y: auto; padding: 1rem; }
         .tracking-card { background: white; border-radius: 28px; padding: 1.5rem; margin-bottom: 1rem; border: 1px solid #f0e2d4; }
-        .progress-container { position: relative; margin: 1rem 0; }
-        .progress-steps { display: flex; justify-content: space-between; }
-        .step { flex: 1; text-align: center; }
-        .step-icon { width: 40px; height: 40px; background: #f0e2d4; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 6px; font-size: 1rem; }
+        /* Black order ID */
+        .order-id-black {
+            background: #2c1a0e;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-family: monospace;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            font-size: 0.85rem;
+        }
+        /* Progress steps inline fix */
+        .progress-container {
+            position: relative;
+            margin: 1rem 0 1.5rem;
+            width: 100%;
+        }
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 4px;
+            width: 100%;
+            flex-wrap: nowrap;
+        }
+        .step {
+            flex: 1;
+            text-align: center;
+            min-width: 0;
+        }
+        .step-icon {
+            width: 36px;
+            height: 36px;
+            background: #f0e2d4;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 4px;
+            font-size: 0.9rem;
+        }
+        .step-label {
+            font-size: 0.65rem;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow-x: hidden;
+            text-overflow: ellipsis;
+        }
         .step.active .step-icon { background: #b5521d; color: white; }
         .step.completed .step-icon { background: #2c7a2c; color: white; }
+        
         .cart-items-list { flex: 1; overflow-y: auto; padding: 1rem; }
-        .cart-item { background: #fefaf7; border-radius: 24px; padding: 1rem; margin-bottom: 1rem; display: flex; justify-content: space-between; }
-        .checkout-btn { background: #b5521d; width: 100%; padding: 14px; border-radius: 60px; border: none; color: white; font-weight: 700; cursor: pointer; }
+        .cart-item { background: #fefaf7; border-radius: 24px; padding: 1rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; }
+        .cart-item-img { width: 48px; height: 48px; border-radius: 16px; object-fit: cover; margin-right: 12px; background: #f0e2d4; }
+        .cart-item-details { flex: 1; }
+        .checkout-btn { background: #b5521d; width: 100%; padding: 14px; border-radius: 60px; border: none; color: white; font-weight: 700; cursor: pointer; margin-top: 12px; }
         .step-modal {
             position: fixed;
             top: 0;
@@ -284,9 +326,35 @@
         .address-group input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 60px; border: 1px solid #e9dbcf; }
         .profile-address-area { background: #fff7f0; padding: 0.8rem; border-radius: 24px; margin: 0 1rem 1rem 1rem; border: 1px solid #f0dfcf; }
         footer { background: #f6ede5; text-align: center; padding: 0.6rem; font-size: 0.7rem; flex-shrink: 0; }
-        .auto-fill-badge { background: #e0f0e0; color: #2c6e2c; font-size: 0.7rem; padding: 2px 8px; border-radius: 20px; margin-left: 8px; }
         .spinner { width: 18px; height: 18px; border: 2px solid white; border-top: 2px solid transparent; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .login-btn-custom { background: #2c1a0e; color: white; border: none; padding: 12px; border-radius: 60px; font-weight: 600; cursor: pointer; width: 100%; text-align: center; }
+        .logout-btn-custom { background: #e05a2a; color: white; border: none; padding: 10px 20px; border-radius: 60px; font-weight: 600; cursor: pointer; }
+        .order-item-img-mini { width: 40px; height: 40px; border-radius: 12px; object-fit: cover; background: #f0e2d4; margin-right: 10px; border: 1px solid #e6cfbc; }
+        .auth-card { background: white; border-radius: 48px; padding: 2rem; width: 90%; max-width: 460px; text-align: center; }
+        .auth-card input { width: 100%; padding: 14px; margin: 10px 0; border-radius: 60px; border: 1px solid #e9dbcf; }
+        .auth-card button { background: #b5521d; color: white; border: none; padding: 12px; border-radius: 60px; font-weight: bold; margin-top: 10px; cursor: pointer; width: 100%; }
+        .toggle-link { color: #b5521d; cursor: pointer; font-weight: 600; margin-top: 15px; display: inline-block; }
+        /* right side price up, date down */
+        .order-meta-right {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+        .order-price {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #b5521d;
+        }
+        .order-date {
+            font-size: 0.7rem;
+            color: #7c5e44;
+            background: #f3e5da;
+            padding: 2px 10px;
+            border-radius: 30px;
+        }
 
         @media (max-width: 1100px) {
             .products { gap: 1.2rem; }
@@ -299,6 +367,8 @@
             .product-card { min-width: 180px; }
             .product-title { font-size: 1rem; }
             .price { font-size: 1.2rem; }
+            .step-label { font-size: 0.55rem; white-space: normal; }
+            .step-icon { width: 28px; height: 28px; font-size: 0.7rem; }
         }
         @media (max-width: 700px) {
             .preview-container { flex-direction: column; }
@@ -311,7 +381,7 @@
 <body>
 
 <div class="navbar">
-    <div class="logo"><i class="fas fa-seedling"></i> Ram Store <span class="admin-badge"><i class="fas fa-tag"></i> RAM+</span></div>
+    <div class="logo"><i class="fas fa-seedling"></i> Ram Store <span class="store-badge"><i class="fas fa-store"></i> Tharad</span></div>
     <div class="right-icons">
         <div class="profile-btn" id="profileBtn"><i class="fas fa-user-circle"></i></div>
         <div class="cart-wrapper" id="cartIcon">
@@ -346,25 +416,27 @@
     <div class="profile-header"><h3><i class="fas fa-user-circle"></i> My Profile</h3><button onclick="closeProfileDrawer()" style="background:none;font-size:1.8rem;">&times;</button></div>
     <div class="profile-user-info" style="padding:1rem; background:#faf3eb; text-align:center;">
         <div class="profile-avatar"><i class="fas fa-user-circle fa-3x"></i></div>
-        <div id="profileEmailDisplay" style="font-weight:600;">Not logged in</div>
+        <div id="profileEmailDisplay" style="font-weight:600; word-break:break-all;">Not logged in</div>
     </div>
     <div class="profile-address-area" id="profileAddressContainer">
         <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;"><i class="fas fa-map-pin" style="color:#b5521d;"></i> <strong>Saved Delivery Address</strong></div>
         <div id="savedAddressDisplay" style="font-size:0.85rem; color:#4a2c18;">No saved address yet.</div>
         <button id="editAddressFromProfile" style="margin-top:8px; background:#e9dbcf; border:none; padding:5px 12px; border-radius:40px; font-size:0.7rem; cursor:pointer;"><i class="fas fa-edit"></i> Update Address</button>
     </div>
-    <div class="order-history-section"><div class="order-history-title"><i class="fas fa-truck"></i> My Orders & Tracking</div><div id="orderHistoryList">Login to see orders</div></div>
-    <button class="profile-action-btn" id="profileLoginBtn" style="margin:8px 1rem; background:#f3e5da; padding:12px; border-radius:60px;"><i class="fas fa-sign-in-alt"></i> Login</button>
-    <button class="profile-action-btn logout" id="profileLogoutBtn" style="display:none; background:#e05a2a; color:white; margin:8px 1rem;"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    <div class="order-history-section">
+        <div class="order-history-title"><i class="fas fa-truck"></i> My Orders & Tracking</div>
+        <div id="orderHistoryList">Login to see orders</div>
+    </div>
+    <div id="profileActionArea" style="margin: 12px 1rem 1rem 1rem;"></div>
 </div>
 
 <!-- Cart Drawer -->
 <div id="cartDrawer" class="cart-drawer">
-    <div class="cart-header"><h3><i class="fas fa-shopping-bag"></i> Cart</h3><button onclick="closeCartDrawer()" style="background:none;font-size:1.8rem;">&times;</button></div>
+    <div class="cart-header"><h3><i class="fas fa-shopping-bag"></i> Your Cart</h3><button onclick="closeCartDrawer()" style="background:none;font-size:1.8rem;">&times;</button></div>
     <div class="cart-items-list" id="cartItemsList">Empty</div>
     <div class="cart-footer" style="padding:1.2rem; border-top:1px solid #eedfcb;">
         <div class="cart-total" style="display:flex; justify-content:space-between;"><span>Total</span><span id="cartTotalPrice">₹0</span></div>
-        <button class="checkout-btn" id="checkoutBtn">Proceed →</button>
+        <button class="checkout-btn" id="checkoutBtn">Proceed to Checkout →</button>
     </div>
 </div>
 
@@ -387,7 +459,7 @@
     </div>
 </div>
 
-<footer><i class="fas fa-truck"></i> Ram Store Tharad | Power by www.prodeveloping.online</footer>
+<footer><i class="fas fa-truck-fast"></i> Ram Store Tharad | Fresh & Authentic Gujarati Snacks</footer>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
@@ -406,21 +478,22 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // 4 Products only
     const products = [
-{ id: 1, name: "Masala Khakhra Pack", price: 199, description: "Crispy roasted khakhra with authentic Gujarati masala taste.", image: "https://images.pexels.com/photos/4958792/pexels-photo-4958792.jpeg", badge: "Gujarati Special" },
-
-{ id: 2, name: "Namkeen Mixture Combo", price: 249, description: "Crunchy farsan mixture with peanuts & sev. Classic spicy snack.", image: "https://images.pexels.com/photos/1618898/pexels-photo-1618898.jpeg", badge: "Spicy Crunch" },
-
-{ id: 3, name: "Peanut Chikki Bites", price: 179, description: "Traditional jaggery peanut chikki packed with natural sweetness.", image: "https://images.pexels.com/photos/4110004/pexels-photo-4110004.jpeg", badge: "Energy Boost" },
-
-{ id: 4, name: "Premium Dry Fruit Ladoo", price: 299, description: "Rich dry fruit laddoos made with almonds & cashews.", image: "https://images.pexels.com/photos/6646356/pexels-photo-6646356.jpeg", badge: "Healthy Sweet" }
-];
+        { id: 1, name: "Masala Khakhra Pack", price: 199, description: "Crispy roasted khakhra with authentic Gujarati masala taste.", image: "https://images.pexels.com/photos/4958792/pexels-photo-4958792.jpeg", badge: "Gujarati Special" },
+        { id: 2, name: "Namkeen Mixture Combo", price: 249, description: "Crunchy farsan mixture with peanuts & sev. Classic spicy snack.", image: "https://images.pexels.com/photos/1618898/pexels-photo-1618898.jpeg", badge: "Spicy Crunch" },
+        { id: 3, name: "Peanut Chikki Bites", price: 179, description: "Traditional jaggery peanut chikki packed with natural sweetness.", image: "https://images.pexels.com/photos/4110004/pexels-photo-4110004.jpeg", badge: "Energy Boost" },
+        { id: 4, name: "Premium Dry Fruit Ladoo", price: 299, description: "Rich dry fruit laddoos made with almonds & cashews.", image: "https://images.pexels.com/photos/6646356/pexels-photo-6646356.jpeg", badge: "Healthy Sweet" }
+    ];
+    
     let cartItems = [];
     let currentUser = null;
     let currentPreviewProduct = null;
 
-    // Address functions
+    function getProductImage(productName) {
+        const found = products.find(p => p.name === productName);
+        return found ? found.image : "https://images.pexels.com/photos/4958792/pexels-photo-4958792.jpeg";
+    }
+
     async function saveUserAddress(addressObj) {
         if (!currentUser) return;
         const userRef = doc(db, "users", currentUser.uid);
@@ -441,9 +514,9 @@
             document.getElementById("cityDistrict").value = savedAddr.city || "";
             document.getElementById("state").value = savedAddr.state || "";
             document.getElementById("pincode").value = savedAddr.pincode || "";
-            document.getElementById("autoFillHint").innerHTML = `<i class="fas fa-check-circle"></i> ✨ Saved address auto-filled! You can edit.`;
+            document.getElementById("autoFillHint").innerHTML = `<i class="fas fa-check-circle"></i> ✨ Saved address auto-filled!`;
         } else {
-            document.getElementById("autoFillHint").innerHTML = `<i class="fas fa-info-circle"></i> First order? Fill address. It will be saved for next time.`;
+            document.getElementById("autoFillHint").innerHTML = `<i class="fas fa-info-circle"></i> First order? Fill address.`;
         }
     }
     async function updateProfileAddressUI() {
@@ -457,18 +530,20 @@
         return `${house}, ${village}, ${city}, ${state} - ${pincode}`;
     }
 
-    // Cart & UI
+    function renderCartDrawer() {
+        const container = document.getElementById("cartItemsList");
+        if (cartItems.length === 0) { container.innerHTML = "<div style='text-align:center;padding:2rem;'>🛒 Cart is empty</div>"; document.getElementById("cartTotalPrice").innerText = "₹0"; return; }
+        let total = 0, html = "";
+        cartItems.forEach((item, idx) => { 
+            total += item.product.price; 
+            html += `<div class="cart-item"><div style="display:flex; align-items:center; gap:10px; flex:1;"><img src="${item.product.image}" class="cart-item-img" onerror="this.src='https://images.pexels.com/photos/4958792/pexels-photo-4958792.jpeg'"><div class="cart-item-details"><b>${item.product.name}</b><br>₹${item.product.price}</div></div><button onclick="window.removeCartItem(${idx})" style="background:none;border:none;color:#bf7b50;font-size:1.2rem;"><i class="fas fa-trash-alt"></i></button></div>`;
+        });
+        container.innerHTML = html;
+        document.getElementById("cartTotalPrice").innerText = `₹${total}`;
+    }
     function updateCartUI() {
         document.getElementById("cartCountBadge").innerText = cartItems.length;
         if (document.getElementById("cartDrawer").classList.contains("open")) renderCartDrawer();
-    }
-    function renderCartDrawer() {
-        const container = document.getElementById("cartItemsList");
-        if (cartItems.length === 0) { container.innerHTML = "<div style='text-align:center;padding:2rem;'>Cart empty</div>"; document.getElementById("cartTotalPrice").innerText = "₹0"; return; }
-        let total = 0, html = "";
-        cartItems.forEach((item, idx) => { total += item.product.price; html += `<div class="cart-item"><span><b>${item.product.name}</b> ₹${item.product.price}</span><button onclick="window.removeCartItem(${idx})" style="background:none;border:none;color:#bf7b50;"><i class="fas fa-trash"></i></button></div>`; });
-        container.innerHTML = html;
-        document.getElementById("cartTotalPrice").innerText = `₹${total}`;
     }
     window.removeCartItem = (idx) => { cartItems.splice(idx, 1); updateCartUI(); };
     window.addCart = (product) => { if(!currentUser) { alert("Please login first"); return false; } cartItems.push({ product: {...product} }); updateCartUI(); return true; };
@@ -483,7 +558,7 @@
     window.closeProfileDrawer = closeProfileDrawer;
     document.getElementById("editAddressFromProfile").onclick = () => { closeProfileDrawer(); window.openAddressModal(); };
 
-    // Order ID generator
+    // Order ID Generator
     const ID_PREFIX = "RAM";
     const START_NUM = 1;
     function extractNumber(track) { if(!track?.startsWith(ID_PREFIX)) return null; return parseInt(track.substring(3),10); }
@@ -492,46 +567,71 @@
     async function generateTrackingNumber() { const existing = await fetchAllTrackingNumbers(); let expected=START_NUM; for(let n of existing){ if(n>expected) return formatNum(expected); if(n===expected) expected++; } return formatNum(expected); }
 
     async function loadOrderHistory() {
-        if(!currentUser) { document.getElementById("orderHistoryList").innerHTML="Login to see orders"; return; }
+        if(!currentUser) { document.getElementById("orderHistoryList").innerHTML="Login to track orders"; return; }
         document.getElementById("orderHistoryList").innerHTML="<div style='text-align:center;'><i class='fas fa-spinner fa-pulse'></i> Loading...</div>";
         try {
             const q = query(collection(db,"orders"), orderBy("date","desc"));
             const snap = await getDocs(q);
             const userOrders=[];
-            snap.forEach(doc=>{ let o=doc.data(); if(o.customerEmail===currentUser.email) userOrders.push({id:doc.id,...o}); });
-            if(userOrders.length===0) { document.getElementById("orderHistoryList").innerHTML="<div style='padding:2rem;text-align:center;'>✨ No orders yet. Shop now!</div>"; return; }
+            snap.forEach(doc=>{ let o=doc.data(); if(o.customerEmail===currentUser.email) userOrders.push({id:doc.id, ...o, firestoreDate: o.date}); });
+            if(userOrders.length===0) { document.getElementById("orderHistoryList").innerHTML="<div style='padding:2rem;text-align:center;'>✨ No orders yet. Start shopping!</div>"; return; }
             let html="";
             const steps=["ordered","shipped","out_for_delivery","delivered"];
             const stepLabels={ordered:"Ordered",shipped:"Shipped",out_for_delivery:"Out for delivery",delivered:"Delivered"};
             const icons={ordered:"fa-clipboard-list",shipped:"fa-box",out_for_delivery:"fa-truck",delivered:"fa-check-circle"};
             userOrders.forEach(order=>{
-                const status=order.trackingStatus||"ordered";
-                const activeIdx=steps.indexOf(status);
-                const percent=(activeIdx/(steps.length-1))*100;
-                html+=`<div class="tracking-card"><div style="display:flex; justify-content:space-between;"><div style="background:#2c1a0e;padding:4px 12px;border-radius:30px;color:white;">Order: ${order.trackingNumber||"RAMxx"}</div><div class="order-status-text status-${status.replace(/_/g,'-')}">${stepLabels[status]}</div></div>
-                <div class="progress-container"><div style="position:absolute; top:25px; left:0; right:0; height:4px; background:#e9cfbb;"></div><div style="position:absolute; top:25px; left:0; width:${percent}%; height:4px; background:#b5521d;"></div>
-                <div class="progress-steps">${steps.map((s,i)=>{ let cls="step"; if(i<activeIdx) cls+=" completed"; if(i===activeIdx) cls+=" active"; return `<div class="${cls}"><div class="step-icon"><i class="fas ${icons[s]}"></i></div><div class="step-label">${stepLabels[s]}</div></div>`; }).join('')}</div></div>
-                <div class="order-details-mini" style="font-size:0.8rem;"><strong>Items:</strong> ${order.items?.map(i=>`${i.name}`).join(", ")} | <strong>Total:</strong> ₹${order.totalAmount}</div></div>`;
+                const status = order.trackingStatus || "ordered";
+                const activeIdx = steps.indexOf(status);
+                const percent = (activeIdx/(steps.length-1))*100;
+                const orderDateObj = order.firestoreDate?.toDate ? order.firestoreDate.toDate() : new Date(order.date?.toDate?.() || Date.now());
+                const formattedDate = orderDateObj.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+                const itemsPreview = order.items?.map(it => {
+                    const imgUrl = getProductImage(it.name);
+                    return `<div style="display:flex; align-items:center; gap:6px; margin-top:5px;"><img src="${imgUrl}" class="order-item-img-mini" onerror="this.src='https://images.pexels.com/photos/4958792/pexels-photo-4958792.jpeg'"><span>${it.name} (₹${it.price})</span></div>`;
+                }).join('') || '';
+                html += `<div class="tracking-card">
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; margin-bottom:12px;">
+                                <div class="order-id-black"><i class="fas fa-hashtag"></i> ${order.trackingNumber}</div>
+                                <div class="order-meta-right">
+                                    <div class="order-price">₹${order.totalAmount}</div>
+                                    <div class="order-date"><i class="far fa-calendar-alt"></i> ${formattedDate}</div>
+                                </div>
+                            </div>
+                            <div class="progress-container">
+                                <div style="position:absolute; top:18px; left:0; right:0; height:3px; background:#e9cfbb; border-radius:2px;"></div>
+                                <div style="position:absolute; top:18px; left:0; width:${percent}%; height:3px; background:#b5521d; border-radius:2px; transition:width 0.2s;"></div>
+                                <div class="progress-steps">
+                                    ${steps.map((s,i)=>{ 
+                                        let cls="step"; 
+                                        if(i<activeIdx) cls+=" completed"; 
+                                        if(i===activeIdx) cls+=" active"; 
+                                        return `<div class="${cls}"><div class="step-icon"><i class="fas ${icons[s]}"></i></div><div class="step-label">${stepLabels[s]}</div></div>`;
+                                    }).join('')}
+                                </div>
+                            </div>
+                            <div style="margin-top: 12px;"><strong>📦 Items:</strong> ${itemsPreview}</div>
+                            <div style="font-size:0.75rem; color:#7c5e44; margin-top:8px; background:#faf3eb; padding:6px 12px; border-radius:40px;"><i class="fas fa-map-pin"></i> ${order.address?.substring(0,70)}</div>
+                        </div>`;
             });
-            document.getElementById("orderHistoryList").innerHTML=html;
-        } catch(e){ document.getElementById("orderHistoryList").innerHTML="<div style='color:red;'>Error</div>"; }
+            document.getElementById("orderHistoryList").innerHTML = html;
+        } catch(e){ console.error(e); document.getElementById("orderHistoryList").innerHTML="<div style='color:red;'>Error loading orders</div>"; }
     }
 
     window.placeOrder = async () => {
         const house=document.getElementById("houseNo").value.trim(), village=document.getElementById("villageTaluka").value.trim(), city=document.getElementById("cityDistrict").value.trim(), state=document.getElementById("state").value.trim(), pincode=document.getElementById("pincode").value.trim();
         if(!house||!village||!city||!state||!pincode) { alert("Fill all address fields"); return; }
-        if(!/^\d{6}$/.test(pincode)) { alert("Invalid pincode"); return; }
+        if(!/^\d{6}$/.test(pincode)) { alert("Invalid 6-digit pincode"); return; }
         const btn=document.getElementById("placeOrderBtn");
         btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Placing...';
         const fullAddress = formatAddressToString(house, village, city, state, pincode);
         const addressObj = { house, village, city, state, pincode, full: fullAddress };
         if(currentUser) await saveUserAddress(addressObj);
-        const orderItems=cartItems.map(i=>({name:i.product.name, price:i.product.price}));
+        const orderItems = cartItems.map(i=>({ name: i.product.name, price: i.product.price, image: i.product.image }));
         const total=cartItems.reduce((s,i)=>s+i.product.price,0);
         const trackingNumber=await generateTrackingNumber();
         try {
-            await addDoc(collection(db,"orders"),{ customerEmail:currentUser.email, customerName:currentUser.email.split('@')[0], address:fullAddress, items:orderItems, totalAmount:total, status:"Ordered", date:new Date(), trackingStatus:"ordered", trackingNumber, parcelTrackingNumber:null });
-            alert(`✅ Order placed! ID: ${trackingNumber}\nAddress saved for auto-fill next time!`);
+            await addDoc(collection(db,"orders"),{ customerEmail:currentUser.email, customerName:currentUser.email.split('@')[0], address:fullAddress, items:orderItems, totalAmount:total, status:"Ordered", date:new Date(), trackingStatus:"ordered", trackingNumber });
+            alert(`✅ Order placed! ID: ${trackingNumber}\nAddress saved!`);
             cartItems=[]; updateCartUI(); closeAddressModal();
             document.querySelectorAll("#addressModal input").forEach(inp=>inp.value="");
             if(document.getElementById("profileDrawer").classList.contains("open")) { loadOrderHistory(); updateProfileAddressUI(); }
@@ -542,35 +642,62 @@
     document.getElementById("checkoutBtn").onclick = window.openAddressModal;
     document.getElementById("cartIcon").onclick = window.openCartDrawer;
 
-    // Auth
-    let authModalEl=null;
-    function showAuthModal(loginMode=true){
-        if(authModalEl) authModalEl.remove();
-        const div=document.createElement("div"); div.className="step-modal";
-        div.innerHTML=`<div class="step-card"><i class="fas ${loginMode?'fa-lock':'fa-user-plus'}" style="font-size:2rem;color:#b5521d;"></i><h2>${loginMode?'Login':'Register'}</h2>
-        <div class="address-group">${!loginMode?'<input id="regName" placeholder="Full Name">':''}<input id="authEmail" placeholder="Email"><input id="authPassword" type="password" placeholder="Password">${!loginMode?'<input id="confirmPassword" type="password" placeholder="Confirm Password">':''}</div>
-        <div class="step-buttons"><button id="authSubmitBtn" class="step-btn primary">${loginMode?'Login':'Register'}</button><button id="cancelAuthBtn" class="step-btn secondary">Cancel</button></div>
-        <div class="toggle-auth">${loginMode?"Don't have account? ":"Already have account? "}<a id="toggleAuthMode">${loginMode?'Register here':'Login here'}</a></div></div>`;
-        document.body.appendChild(div); authModalEl=div; setTimeout(()=>div.classList.add("active"),10);
-        document.getElementById("authSubmitBtn").onclick=async()=>{
-            const email=document.getElementById("authEmail").value, pass=document.getElementById("authPassword").value;
-            if(!email||!pass){alert("Fill fields");return;}
-            if(!loginMode && document.getElementById("confirmPassword").value!==pass){alert("Passwords mismatch");return;}
-            try{
-                if(loginMode) await signInWithEmailAndPassword(auth,email,pass);
-                else await createUserWithEmailAndPassword(auth,email,pass);
-                alert(loginMode?"Welcome! 🎉":"Account created! 🎉");
-                div.classList.remove("active"); setTimeout(()=>div.remove(),300);
-                closeProfileDrawer();
-            } catch(e){ alert("Error: "+e.message); }
+    function showAuthModal(loginMode = true) {
+        const modal = document.createElement('div');
+        modal.className = 'auth-modal-global';
+        modal.innerHTML = `
+            <div class="auth-card">
+                <i class="fas ${loginMode ? 'fa-sign-in-alt' : 'fa-user-plus'}" style="font-size: 2.5rem; color: #b5521d; margin-bottom: 12px;"></i>
+                <h2 style="margin-bottom: 20px;">${loginMode ? 'Login to Ram Store' : 'Create Account'}</h2>
+                <input type="email" id="authEmail" placeholder="Email Address" autocomplete="off">
+                <input type="password" id="authPassword" placeholder="Password">
+                ${!loginMode ? '<input type="password" id="authConfirmPassword" placeholder="Confirm Password">' : ''}
+                <button id="authSubmitBtn">${loginMode ? 'Login' : 'Register'}</button>
+                <div style="margin-top: 15px;">
+                    <span style="color:#7c5e44;">${loginMode ? "New here?" : "Already have an account?"}</span>
+                    <span id="toggleAuthMode" class="toggle-link">${loginMode ? 'Create Account' : 'Login'}</span>
+                </div>
+                <button id="closeAuthModal" style="background: #e9dbcf; color: #2c1a0e; margin-top: 10px;">Cancel</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        setTimeout(() => modal.classList.add('active'), 10);
+        
+        const submitBtn = modal.querySelector('#authSubmitBtn');
+        const toggleBtn = modal.querySelector('#toggleAuthMode');
+        const closeBtn = modal.querySelector('#closeAuthModal');
+        
+        submitBtn.onclick = async () => {
+            const email = modal.querySelector('#authEmail').value.trim();
+            const pass = modal.querySelector('#authPassword').value.trim();
+            if (!email || !pass) { alert("Please fill all fields"); return; }
+            if (!loginMode) {
+                const confirm = modal.querySelector('#authConfirmPassword').value;
+                if (pass !== confirm) { alert("Passwords do not match!"); return; }
+            }
+            try {
+                if (loginMode) await signInWithEmailAndPassword(auth, email, pass);
+                else await createUserWithEmailAndPassword(auth, email, pass);
+                alert(loginMode ? "Login successful! 🎉" : "Account created! Please login.");
+                if (!loginMode) { modal.classList.remove('active'); setTimeout(() => modal.remove(), 300); showAuthModal(true); }
+                else { modal.classList.remove('active'); setTimeout(() => modal.remove(), 300); closeProfileDrawer(); }
+            } catch(err) { alert("Error: " + err.message); }
         };
-        document.getElementById("cancelAuthBtn").onclick=()=>{ div.classList.remove("active"); setTimeout(()=>div.remove(),300); };
-        document.getElementById("toggleAuthMode").onclick=()=>{ div.classList.remove("active"); setTimeout(()=>{ div.remove(); showAuthModal(!loginMode); },300); };
+        toggleBtn.onclick = () => { modal.classList.remove('active'); setTimeout(() => { modal.remove(); showAuthModal(!loginMode); }, 300); };
+        closeBtn.onclick = () => { modal.classList.remove('active'); setTimeout(() => modal.remove(), 300); };
     }
-    document.getElementById("profileLoginBtn").onclick=()=>showAuthModal(true);
-    document.getElementById("profileLogoutBtn").onclick=async()=>{ await signOut(auth); cartItems=[]; updateCartUI(); closeProfileDrawer(); alert("Logged out"); };
+    
+    function updateProfileActionButtons() {
+        const actionDiv = document.getElementById("profileActionArea");
+        if(currentUser) {
+            actionDiv.innerHTML = `<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;"><div style="font-size:0.85rem; background:#f3e5da; padding:8px 12px; border-radius:40px;"><i class="fas fa-envelope"></i> ${currentUser.email}</div><button id="profileLogoutBtn" class="logout-btn-custom"><i class="fas fa-sign-out-alt"></i> Logout</button></div>`;
+            document.getElementById("profileLogoutBtn")?.addEventListener("click", async () => { await signOut(auth); cartItems=[]; updateCartUI(); closeProfileDrawer(); alert("Logged out"); });
+        } else {
+            actionDiv.innerHTML = `<button id="profileLoginBtn" class="login-btn-custom"><i class="fas fa-sign-in-alt"></i> Login / Register</button>`;
+            document.getElementById("profileLoginBtn")?.addEventListener("click", () => showAuthModal(true));
+        }
+    }
 
-    // Preview
     function openPreview(product){
         currentPreviewProduct=product;
         const modal=document.getElementById("previewModal");
@@ -593,15 +720,7 @@
         products.forEach(p=>{
             const card=document.createElement("div");
             card.className="product-card";
-            card.innerHTML=`
-                <div class="product-img" style="background-image:url('${p.image}');"><div class="product-badge">${p.badge}</div></div>
-                <div class="product-info">
-                    <div class="product-title">${p.name}</div>
-                    <div class="product-desc">${p.description.substring(0,55)}...</div>
-                    <div class="price-row"><span class="price">₹${p.price}</span></div>
-                    <button class="buy-btn"><i class="fas fa-cart-plus"></i> Add to Cart</button>
-                </div>
-            `;
+            card.innerHTML=`<div class="product-img" style="background-image:url('${p.image}');"><div class="product-badge">${p.badge}</div></div><div class="product-info"><div class="product-title">${p.name}</div><div class="product-desc">${p.description.substring(0,55)}...</div><div class="price-row"><span class="price">₹${p.price}</span></div><button class="buy-btn"><i class="fas fa-cart-plus"></i> Add to Cart</button></div>`;
             const btn=card.querySelector(".buy-btn");
             btn.onclick=(e)=>{ e.stopPropagation(); window.addCart(p); };
             card.onclick=(e)=>{ if(e.target!==btn && !btn.contains(e.target)) openPreview(p); };
@@ -613,19 +732,16 @@
     onAuthStateChanged(auth, async(user)=>{
         currentUser=user;
         if(user){
-            document.getElementById("profileEmailDisplay").innerText=user.email;
-            document.getElementById("profileLoginBtn").style.display="none";
-            document.getElementById("profileLogoutBtn").style.display="block";
+            document.getElementById("profileEmailDisplay").innerHTML = `<i class="fas fa-check-circle" style="color:#2c7a2c;"></i> ${user.email}`;
             await loadOrderHistory();
             await updateProfileAddressUI();
         } else {
-            document.getElementById("profileEmailDisplay").innerText="Not logged in";
-            document.getElementById("profileLoginBtn").style.display="block";
-            document.getElementById("profileLogoutBtn").style.display="none";
-            document.getElementById("orderHistoryList").innerHTML="Login to track orders";
+            document.getElementById("profileEmailDisplay").innerHTML = '<i class="fas fa-user-slash"></i> Not logged in';
+            document.getElementById("orderHistoryList").innerHTML="Login to view your orders & tracking";
             document.getElementById("savedAddressDisplay").innerHTML="Login to save address";
             cartItems=[]; updateCartUI();
         }
+ updateProfileActionButtons();
     });
     updateCartUI();
 </script>
