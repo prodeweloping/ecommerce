@@ -462,7 +462,7 @@
             <input type="text" id="cityDistrict" placeholder="City / District" autocomplete="off">
             <input type="text" id="state" placeholder="State" autocomplete="off">
             <input type="text" id="pincode" placeholder="Pincode" autocomplete="off">
-    </div>
+   </div>
         <div class="step-buttons" style="display:flex; gap:12px;">
             <button class="step-btn secondary" onclick="closeAddressModal()" style="flex:1; background:#e9dfd6;">Back</button>
             <button class="step-btn primary" id="placeOrderBtn" style="flex:1; background:#b5521d; color:white;">Place Order & Save Address</button>
@@ -470,7 +470,7 @@
     </div>
 </div>
 
-<footer><i class="fas fa-truck-fast"></i> Ram Store Tharad | Power By www.prodeveloping.online</footer>
+<footer><i class="fas fa-truck-fast"></i> Ram Store Tharad | www.prodeveloping.online</footer>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
@@ -577,7 +577,6 @@
     async function fetchAllTrackingNumbers() { const snap = await getDocs(collection(db,"orders")); let nums=[]; snap.forEach(d=>{ let num=extractNumber(d.data().trackingNumber); if(num!==null) nums.push(num); }); nums.sort((a,b)=>a-b); return nums; }
     async function generateTrackingNumber() { const existing = await fetchAllTrackingNumbers(); let expected=START_NUM; for(let n of existing){ if(n>expected) return formatNum(expected); if(n===expected) expected++; } return formatNum(expected); }
 
-    // Real-time order listener with improved UI
     function loadOrderHistory() {
         const container = document.getElementById("orderHistoryList");
         if(!currentUser) {
@@ -695,15 +694,32 @@
     document.getElementById("checkoutBtn").onclick = window.openAddressModal;
     document.getElementById("cartIcon").onclick = window.openCartDrawer;
 
-    function showAuthModal(loginMode = true) {
+    // FIXED: Complete auth modal with proper HTML structure
+    window.showAuthModal = function(loginMode = true) {
         const modal = document.createElement('div');
         modal.className = 'auth-modal-global';
-        modal.innerHTML = `...`; // kept same as original for brevity
+        modal.innerHTML = `
+            <div class="auth-card">
+                <i class="fas ${loginMode ? 'fa-sign-in-alt' : 'fa-user-plus'}" style="font-size: 2.5rem; color: #b5521d; margin-bottom: 12px;"></i>
+                <h2 style="margin-bottom: 20px;">${loginMode ? 'Login to Ram Store' : 'Create Account'}</h2>
+                <input type="email" id="authEmail" placeholder="Email Address" autocomplete="off">
+                <input type="password" id="authPassword" placeholder="Password">
+                ${!loginMode ? '<input type="password" id="authConfirmPassword" placeholder="Confirm Password">' : ''}
+                <button id="authSubmitBtn">${loginMode ? 'Login' : 'Register'}</button>
+                <div style="margin-top: 15px;">
+                    <span style="color:#7c5e44;">${loginMode ? "New here?" : "Already have an account?"}</span>
+                    <span id="toggleAuthMode" class="toggle-link">${loginMode ? 'Create Account' : 'Login'}</span>
+                </div>
+                <button id="closeAuthModal" style="background: #e9dbcf; color: #2c1a0e; margin-top: 10px;">Cancel</button>
+            </div>
+        `;
         document.body.appendChild(modal);
         setTimeout(() => modal.classList.add('active'), 10);
+        
         const submitBtn = modal.querySelector('#authSubmitBtn');
         const toggleBtn = modal.querySelector('#toggleAuthMode');
         const closeBtn = modal.querySelector('#closeAuthModal');
+        
         submitBtn.onclick = async () => {
             const email = modal.querySelector('#authEmail').value.trim();
             const pass = modal.querySelector('#authPassword').value.trim();
@@ -713,25 +729,45 @@
                 if (pass !== confirm) { alert("Passwords do not match!"); return; }
             }
             try {
-                if (loginMode) await signInWithEmailAndPassword(auth, email, pass);
-                else await createUserWithEmailAndPassword(auth, email, pass);
-                alert(loginMode ? "Login successful! 🎉" : "Account created! Please login.");
-                if (!loginMode) { modal.classList.remove('active'); setTimeout(() => modal.remove(), 300); showAuthModal(true); }
-                else { modal.classList.remove('active'); setTimeout(() => modal.remove(), 300); closeProfileDrawer(); }
-            } catch(err) { alert("Error: " + err.message); }
+                if (loginMode) {
+                    await signInWithEmailAndPassword(auth, email, pass);
+                    alert("Login successful! 🎉");
+                } else {
+                    await createUserWithEmailAndPassword(auth, email, pass);
+                    alert("Account created! Please login.");
+                    modal.classList.remove('active');
+                    setTimeout(() => modal.remove(), 300);
+                    window.showAuthModal(true);
+                    return;
+                }
+                modal.classList.remove('active');
+                setTimeout(() => modal.remove(), 300);
+                closeProfileDrawer();
+            } catch(err) { 
+                alert("Error: " + err.message); 
+            }
         };
-        toggleBtn.onclick = () => { modal.classList.remove('active'); setTimeout(() => { modal.remove(); showAuthModal(!loginMode); }, 300); };
-        closeBtn.onclick = () => { modal.classList.remove('active'); setTimeout(() => modal.remove(), 300); };
-    }
+        toggleBtn.onclick = () => { 
+            modal.classList.remove('active'); 
+            setTimeout(() => { 
+                modal.remove(); 
+                window.showAuthModal(!loginMode); 
+            }, 300); 
+        };
+        closeBtn.onclick = () => { 
+            modal.classList.remove('active'); 
+            setTimeout(() => modal.remove(), 300); 
+        };
+    };
     
     function updateProfileActionButtons() {
         const actionDiv = document.getElementById("profileActionArea");
         if(currentUser) {
             actionDiv.innerHTML = `<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;"><div style="font-size:0.85rem; background:#f3e5da; padding:8px 12px; border-radius:40px;"><i class="fas fa-envelope"></i> ${currentUser.email}</div><button id="profileLogoutBtn" class="logout-btn-custom"><i class="fas fa-sign-out-alt"></i> Logout</button></div>`;
-            document.getElementById("profileLogoutBtn")?.addEventListener("click", async () => { await signOut(auth); cartItems=[]; updateCartUI(); closeProfileDrawer(); alert("Logged out"); });
+        document.getElementById("profileLogoutBtn")?.addEventListener("click", async () => { await signOut(auth); cartItems=[]; updateCartUI(); closeProfileDrawer(); alert("Logged out"); });
         } else {
             actionDiv.innerHTML = `<button id="profileLoginBtn" class="login-btn-custom"><i class="fas fa-sign-in-alt"></i> Login / Register</button>`;
-            document.getElementById("profileLoginBtn")?.addEventListener("click", () => showAuthModal(true));
+            document.getElementById("profileLoginBtn")?.addEventListener("click", () => window.showAuthModal(true));
         }
     }
 
@@ -768,16 +804,17 @@
 
     onAuthStateChanged(auth, async(user)=>{
         if(unsubscribeOrders && !user) { unsubscribeOrders(); unsubscribeOrders = null; }
-        currentUser=user;
+        currentUser = user;
         if(user){
             document.getElementById("profileEmailDisplay").innerHTML = `<i class="fas fa-check-circle" style="color:#2c7a2c;"></i> ${user.email}`;
             loadOrderHistory();
             await updateProfileAddressUI();
         } else {
             document.getElementById("profileEmailDisplay").innerHTML = '<i class="fas fa-user-slash"></i> Not logged in';
-            document.getElementById("orderHistoryList").innerHTML="Login to view your orders & tracking";
-            document.getElementById("savedAddressDisplay").innerHTML="Login to save address";
-            cartItems=[]; updateCartUI();
+            document.getElementById("orderHistoryList").innerHTML = '<div style="padding:2rem;text-align:center;background:#fef3e8;border-radius:36px;">🔐 Login to view your orders & tracking</div>';
+            document.getElementById("savedAddressDisplay").innerHTML = "Login to save address";
+            cartItems = [];
+            updateCartUI();
         }
         updateProfileActionButtons();
     });
