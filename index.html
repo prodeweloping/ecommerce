@@ -344,6 +344,33 @@
         .step-label { font-size: 0.45rem; font-weight: 500; }
         .order-item-img-mini { width: 30px; height: 30px; border-radius: 8px; object-fit: cover; margin-right: 6px; border: 1px solid #e6cfbc; }
         .items-preview-section { margin-top: 8px; background: #faf8f5; border-radius: 16px; padding: 6px; font-size: 0.7rem; }
+        .cancel-order-btn {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 40px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.65rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 8px;
+        }
+        .cancel-order-btn:hover { background: linear-gradient(135deg, #b91c1c, #991b1b); transform: scale(0.98); }
+        .cancelled-badge {
+            background: #9ca3af;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
         .login-btn-custom { background: linear-gradient(135deg, #2c1a0e, #4a2a18); color: white; border: none; padding: 10px; border-radius: 60px; font-weight: 600; width: 100%; cursor: pointer; font-size: 0.8rem; transition: 0.2s; }
         .logout-btn-custom { background: linear-gradient(135deg, #e05a2a, #c44a1a); color: white; border: none; padding: 8px 16px; border-radius: 60px; cursor: pointer; font-size: 0.75rem; transition: 0.2s; }
 
@@ -398,6 +425,33 @@
         .forgot-link { color: #b5521d; cursor: pointer; font-weight: 600; font-size: 0.75rem; margin-top: 6px; display: inline-block; text-align: right; width: 100%; }
         .toggle-link { color: #b5521d; cursor: pointer; font-weight: 600; margin-top: 12px; display: inline-block; }
         #autoFillHint { background: #e8f5e9; padding: 6px 10px; border-radius: 40px; margin-bottom: 12px; font-size: 0.7rem; text-align: center; }
+        .saved-address-checkbox {
+            margin: 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f0f4f8;
+            padding: 10px 12px;
+            border-radius: 60px;
+            cursor: pointer;
+        }
+        .saved-address-checkbox input {
+            width: 18px;
+            height: 18px;
+            margin: 0;
+            cursor: pointer;
+        }
+        .saved-address-checkbox label {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #2c1a0e;
+            cursor: pointer;
+            flex: 1;
+        }
+        .saved-address-checkbox i {
+            color: #b5521d;
+            font-size: 1rem;
+        }
         footer { background: linear-gradient(135deg, #f6ede5, #f0e4d8); text-align: center; padding: 0.5rem; font-size: 0.6rem; }
 
         @media (min-width: 641px) and (max-width: 900px) { .products { grid-template-columns: repeat(3, 1fr); gap: 1rem; } }
@@ -445,7 +499,7 @@
     <div class="cart-summary" id="cartSummaryPanel"></div>
 </div>
 
-<!-- Profile Drawer (Full old version) -->
+<!-- Profile Drawer -->
 <div id="profileDrawer" class="profile-drawer">
     <div class="profile-header"><h3><i class="fas fa-user-circle"></i> My Profile</h3><button onclick="closeProfileDrawer()" style="background:none; font-size:1.8rem; cursor:pointer; border:none;">&times;</button></div>
     <div class="profile-user-info">
@@ -464,11 +518,19 @@
     <div id="profileActionArea" style="margin: 10px 0.8rem 0.8rem 0.8rem;"></div>
 </div>
 
-<!-- Address Modal -->
+<!-- Address Modal with Checkbox -->
 <div id="addressModal" class="step-modal">
     <div class="step-card">
         <h2><i class="fas fa-location-dot"></i> Delivery Address</h2>
         <div id="autoFillHint"></div>
+        
+        <!-- Checkbox for saved address -->
+        <div id="savedAddressCheckboxContainer" class="saved-address-checkbox" style="display: none;">
+            <i class="fas fa-bookmark"></i>
+            <input type="checkbox" id="useSavedAddressCheckbox">
+            <label for="useSavedAddressCheckbox">Use my saved address</label>
+        </div>
+        
         <input type="text" id="houseNo" placeholder="🏠 House / Flat No.">
         <input type="text" id="villageTaluka" placeholder="📍 Village / Taluka">
         <input type="text" id="cityDistrict" placeholder="🏙️ City / District">
@@ -486,7 +548,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, orderBy, query, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, orderBy, query, doc, setDoc, getDoc, onSnapshot, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCIe9xLDNE7keqjXLmvR3xHVXqPp-ZrYwo",
@@ -512,6 +574,83 @@
     let selectedPayment = "COD";
     let unsubscribeOrders = null;
     let currentPreviewProduct = null;
+    let savedAddressData = null;
+    
+    // Sequential tracking number generator with reuse of deleted numbers
+    async function generateTrackingNumber() {
+        try {
+            const ordersSnapshot = await getDocs(collection(db, "orders"));
+            const existingNumbers = new Set();
+            ordersSnapshot.forEach(doc => {
+                const orderData = doc.data();
+                if (orderData.trackingNumber && typeof orderData.trackingNumber === 'string' && orderData.trackingNumber.startsWith('RAM')) {
+                    const numPart = orderData.trackingNumber.substring(3);
+                    const num = parseInt(numPart, 10);
+                    if (!isNaN(num)) {
+                        existingNumbers.add(num);
+                    }
+                }
+            });
+            let nextNumber = 1;
+            while (existingNumbers.has(nextNumber)) {
+                nextNumber++;
+            }
+            const paddedNumber = nextNumber.toString().padStart(2, '0');
+            return `RAM${paddedNumber}`;
+        } catch (error) {
+            console.error("Error generating tracking number:", error);
+            const fallbackNum = Math.floor(Math.random() * 1000);
+            const fallbackPadded = fallbackNum.toString().padStart(2, '0');
+            return `RAM${fallbackPadded}`;
+        }
+    }
+    
+    // Cancel order function - only allowed before shipping
+    async function cancelOrder(orderId, trackingNumber) {
+        if (!currentUser) {
+            alert("Please login to cancel order");
+            return;
+        }
+        
+        const confirmCancel = confirm(`Are you sure you want to cancel order ${trackingNumber}?`);
+        if (!confirmCancel) return;
+        
+        try {
+            const orderRef = doc(db, "orders", orderId);
+            const orderSnap = await getDoc(orderRef);
+            
+            if (!orderSnap.exists()) {
+                alert("Order not found");
+                return;
+            }
+            
+            const orderData = orderSnap.data();
+            const currentStatus = orderData.trackingStatus || "ordered";
+            
+            // Check if order can be cancelled (only before shipping)
+            if (currentStatus === "shipped" || currentStatus === "out_for_delivery" || currentStatus === "delivered") {
+                alert(`Cannot cancel order. Order has already been ${currentStatus}. Cancellation is only allowed before shipping.`);
+                return;
+            }
+            
+            // Update order status to cancelled
+            await updateDoc(orderRef, {
+                trackingStatus: "cancelled",
+                status: "Cancelled",
+                cancelledAt: new Date()
+            });
+            
+            showToast(`Order ${trackingNumber} cancelled successfully`);
+            
+            // Refresh order history
+            if (document.getElementById("profileDrawer").classList.contains("open")) {
+                loadOrderHistory();
+            }
+        } catch (error) {
+            console.error("Error cancelling order:", error);
+            alert("Failed to cancel order: " + error.message);
+        }
+    }
     
     function getProductImage(name) { return products.find(p=>p.name===name)?.image || products[0].image; }
     function showToast(msg) { const t = document.createElement('div'); t.className = 'toast-success'; t.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`; document.body.appendChild(t); setTimeout(()=>t.remove(), 1800); }
@@ -547,7 +686,7 @@
         const total = subtotal + 40;
         summaryPanel.innerHTML = `<div class="price-row-summary"><span>Subtotal</span><span>₹${subtotal}</span></div><div class="price-row-summary"><span>Delivery Charge</span><span>₹40</span></div><div class="total-big">Total Payable: ₹${total}</div><div class="payment-options"><div class="pay-option ${selectedPayment === 'COD' ? 'active' : ''}" data-pay="COD">💵 COD</div><div class="pay-option ${selectedPayment === 'UPI' ? 'active' : ''}" data-pay="UPI">📱 UPI</div></div><button id="proceedPaymentGlow" class="glow-btn"><i class="fas fa-bolt"></i> Proceed to Payment</button><button id="continueShoppingDrawerBtn" class="continue-shopping"><i class="fas fa-arrow-left"></i> Continue Shopping</button>`;
         document.querySelectorAll('.pay-option').forEach(el => { el.onclick = () => { selectedPayment = el.dataset.pay; renderCartDrawer(); }; });
-        document.getElementById("proceedPaymentGlow")?.addEventListener("click", () => { if(cartItems.length===0) return alert("Cart empty"); closePremiumDrawer(); document.getElementById("addressModal").classList.add("active"); });
+        document.getElementById("proceedPaymentGlow")?.addEventListener("click", () => { if(cartItems.length===0) return alert("Cart empty"); closePremiumDrawer(); openAddressModalFlow(); });
         document.getElementById("continueShoppingDrawerBtn")?.addEventListener("click", () => closePremiumDrawer());
     }
     
@@ -555,25 +694,117 @@
     function openPremiumDrawer() { renderCartDrawer(); document.getElementById("premiumCartDrawer").classList.add("open"); }
     function closePremiumDrawer() { document.getElementById("premiumCartDrawer").classList.remove("open"); }
     
-    async function saveUserAddress(addrObj) { if(currentUser) await setDoc(doc(db,"users",currentUser.uid), { savedAddress: addrObj, email: currentUser.email }, { merge: true }); }
-    async function loadUserAddress() { if(!currentUser) return null; const snap = await getDoc(doc(db,"users",currentUser.uid)); return snap.exists() && snap.data().savedAddress ? snap.data().savedAddress : null; }
-    async function autoFillModal() { const addr = await loadUserAddress(); if(addr) { document.getElementById("houseNo").value = addr.house||""; document.getElementById("villageTaluka").value = addr.village||""; document.getElementById("cityDistrict").value = addr.city||""; document.getElementById("state").value = addr.state||""; document.getElementById("pincode").value = addr.pincode||""; document.getElementById("autoFillHint").innerHTML = `<i class="fas fa-check-circle"></i> Saved address auto-filled`; } }
+    async function saveUserAddress(addrObj) { 
+        if(currentUser) {
+            await setDoc(doc(db,"users",currentUser.uid), { 
+                savedAddress: addrObj, 
+                email: currentUser.email,
+                lastUpdated: new Date()
+            }, { merge: true }); 
+            savedAddressData = addrObj;
+        }
+    }
+    
+    async function loadUserAddress() { 
+        if(!currentUser) return null; 
+        const snap = await getDoc(doc(db,"users",currentUser.uid));
+        if(snap.exists() && snap.data().savedAddress) {
+            const addr = snap.data().savedAddress;
+            if(addr && !addr.full && addr.house && addr.village && addr.city && addr.state && addr.pincode) {
+                addr.full = `${addr.house}, ${addr.village}, ${addr.city}, ${addr.state} - ${addr.pincode}`;
+            }
+            savedAddressData = addr;
+            return addr;
+        }
+        savedAddressData = null;
+        return null;
+    }
+    
+    function fillAddressFromSaved() {
+        if (savedAddressData) {
+            document.getElementById("houseNo").value = savedAddressData.house || "";
+            document.getElementById("villageTaluka").value = savedAddressData.village || "";
+            document.getElementById("cityDistrict").value = savedAddressData.city || "";
+            document.getElementById("state").value = savedAddressData.state || "";
+            document.getElementById("pincode").value = savedAddressData.pincode || "";
+            document.getElementById("autoFillHint").innerHTML = `<i class="fas fa-check-circle"></i> Saved address loaded successfully`;
+            setTimeout(() => {
+                if(document.getElementById("autoFillHint").innerHTML.includes("loaded")) {
+                    document.getElementById("autoFillHint").innerHTML = "";
+                }
+            }, 2000);
+        } else {
+            document.getElementById("autoFillHint").innerHTML = `<i class="fas fa-info-circle"></i> No saved address found. Please enter your address.`;
+            setTimeout(() => {
+                if(document.getElementById("autoFillHint").innerHTML.includes("found")) {
+                    document.getElementById("autoFillHint").innerHTML = "";
+                }
+            }, 3000);
+        }
+    }
+    
+    async function autoFillModal() { 
+        const addr = await loadUserAddress(); 
+        const checkboxContainer = document.getElementById("savedAddressCheckboxContainer");
+        const checkbox = document.getElementById("useSavedAddressCheckbox");
+        
+        if(addr && addr.house && addr.village && addr.city && addr.state && addr.pincode) {
+            checkboxContainer.style.display = "flex";
+            checkbox.checked = false;
+            
+            // Remove previous event listener and add new one
+            checkbox.onchange = function() {
+                if(this.checked) {
+                    fillAddressFromSaved();
+                } else {
+                    // Clear all address fields when unchecked
+                    document.getElementById("houseNo").value = "";
+                    document.getElementById("villageTaluka").value = "";
+                    document.getElementById("cityDistrict").value = "";
+                    document.getElementById("state").value = "";
+                    document.getElementById("pincode").value = "";
+                    document.getElementById("autoFillHint").innerHTML = `<i class="fas fa-edit"></i> Enter new address`;
+                    setTimeout(() => {
+                        if(document.getElementById("autoFillHint").innerHTML.includes("new address")) {
+                            document.getElementById("autoFillHint").innerHTML = "";
+                        }
+                    }, 1500);
+                }
+            };
+        } else {
+            checkboxContainer.style.display = "none";
+        }
+        
+        if(addr) { 
+            savedAddressData = addr;
+        } else {
+            savedAddressData = null;
+        }
+    }
     
     async function placeOrderFinal() {
-        const house=document.getElementById("houseNo").value.trim(), village=document.getElementById("villageTaluka").value.trim(), city=document.getElementById("cityDistrict").value.trim(), state=document.getElementById("state").value.trim(), pincode=document.getElementById("pincode").value.trim();
-        if(!house||!village||!city||!state||!pincode||!/^\d{6}$/.test(pincode)) { alert("Fill valid address details"); return; }
+        let house=document.getElementById("houseNo").value.trim(), 
+            village=document.getElementById("villageTaluka").value.trim(), 
+            city=document.getElementById("cityDistrict").value.trim(), 
+            state=document.getElementById("state").value.trim(), 
+            pincode=document.getElementById("pincode").value.trim();
+            
+        if(!house||!village||!city||!state||!pincode||!/^\d{6}$/.test(pincode)) { 
+            alert("Fill valid address details"); 
+            return; 
+        }
         const fullAddress = `${house}, ${village}, ${city}, ${state} - ${pincode}`;
         const addressObj = { house, village, city, state, pincode, full: fullAddress };
         if(currentUser) await saveUserAddress(addressObj);
         const orderItems = cartItems.map(i=>({ name: i.product.name, price: i.product.price, quantity: i.quantity, image: i.product.image }));
         const subtotal = cartItems.reduce((s,i)=>s+(i.product.price*i.quantity),0);
         const total = subtotal + 40;
-        const trackingNumber = "RAM" + Math.floor(Math.random() * 1000);
+        const trackingNumber = await generateTrackingNumber();
         const btn = document.getElementById("placeOrderFinalBtn");
         btn.disabled=true; btn.innerHTML='⏳ Placing...';
         try {
             await addDoc(collection(db,"orders"),{ customerEmail:currentUser.email, customerName:currentUser.email.split('@')[0], address:fullAddress, items:orderItems, totalAmount:total, status:"Ordered", date:new Date(), trackingStatus:"ordered", trackingNumber, parcelTrackingNumber: `Awaiting Few Days `, paymentMethod:selectedPayment });
-            alert(`✅ Order placed! ID: ${trackingNumber}\nParcel tracking will be updated by admin.`);
+            alert(`✅ Order placed! ID: ${trackingNumber}\nParcel tracking will be updated by admin.\nYou can cancel this order anytime before it is shipped.`);
             cartItems = []; updateCartTotalsAndRender(); closeAddressModal(); closePremiumDrawer();
             if(document.getElementById("profileDrawer").classList.contains("open")) loadOrderHistory();
         } catch(e){ alert("Error: "+e.message); }
@@ -595,15 +826,30 @@
             const icons = {ordered:"fa-clipboard-list", shipped:"fa-box", out_for_delivery:"fa-truck", delivered:"fa-check-circle"};
             userOrders.forEach(order => {
                 const status = order.trackingStatus || "ordered";
-                const activeIdx = steps.indexOf(status);
-                const percent = (activeIdx / (steps.length - 1)) * 100;
+                const isCancelled = status === "cancelled";
+                const activeIdx = isCancelled ? -1 : steps.indexOf(status);
+                const percent = !isCancelled && activeIdx >= 0 ? (activeIdx / (steps.length - 1)) * 100 : 0;
                 const dateObj = order.date?.toDate ? order.date.toDate() : new Date();
                 const formattedDate = dateObj.toLocaleDateString('en-IN');
                 const parcelNumber = order.parcelTrackingNumber || "Not assigned yet";
                 const itemsPreview = order.items?.map(it => `<div style="display:flex; align-items:center; gap:6px; margin:4px 0;"><img src="${getProductImage(it.name)}" class="order-item-img-mini"><span><strong>${it.name}</strong> x${it.quantity} - ₹${it.price}</span></div>`).join('');
-                html += `<div class="tracking-card"><div class="order-header-row"><div><div class="order-id-black"><i class="fas fa-hashtag"></i> ${order.trackingNumber}</div><div class="parcel-tracking-badge"><i class="fas fa-box-open"></i> Courier ID: ${parcelNumber}</div></div><div class="order-price">₹${order.totalAmount}</div></div><div class="order-date"><i class="far fa-calendar-alt"></i> ${formattedDate}</div><div class="progress-container"><div class="progress-line-bg"></div><div class="progress-line-fill" style="width: ${percent}%;"></div><div class="progress-steps">${steps.map((s,i)=>{ let cls = "step"; if(i < activeIdx) cls += " completed"; if(i === activeIdx) cls += " active"; return `<div class="${cls}"><div class="step-icon"><i class="fas ${icons[s]}"></i></div><div class="step-label">${labels[s]}</div></div>`; }).join('')}</div></div><div class="items-preview-section"><strong><i class="fas fa-shopping-basket"></i> Items:</strong>${itemsPreview}</div><div style="font-size:0.65rem; margin-top:6px;"><i class="fas fa-map-pin"></i> ${order.address?.substring(0,60) || 'Address'}</div></div>`;
+                
+                if (isCancelled) {
+                    html += `<div class="tracking-card" style="opacity:0.8; background:#fef2f2;"><div class="order-header-row"><div><div class="order-id-black"><i class="fas fa-hashtag"></i> ${order.trackingNumber}</div><div class="cancelled-badge"><i class="fas fa-ban"></i> CANCELLED</div></div><div class="order-price" style="background:#fee2e2; color:#991b1b;">₹${order.totalAmount}</div></div><div class="order-date"><i class="far fa-calendar-alt"></i> ${formattedDate}</div><div style="margin:10px 0; padding:8px; background:#fee2e2; border-radius:12px; text-align:center;"><i class="fas fa-info-circle"></i> Order has been cancelled</div><div class="items-preview-section"><strong><i class="fas fa-shopping-basket"></i> Items:</strong>${itemsPreview}</div><div style="font-size:0.65rem; margin-top:6px;"><i class="fas fa-map-pin"></i> ${order.address?.substring(0,60) || 'Address'}</div></div>`;
+                } else {
+                    const canCancel = status === "ordered";
+                    html += `<div class="tracking-card"><div class="order-header-row"><div><div class="order-id-black"><i class="fas fa-hashtag"></i> ${order.trackingNumber}</div><div class="parcel-tracking-badge"><i class="fas fa-box-open"></i> Courier ID: ${parcelNumber}</div></div><div class="order-price">₹${order.totalAmount}</div></div><div class="order-date"><i class="far fa-calendar-alt"></i> ${formattedDate}</div><div class="progress-container"><div class="progress-line-bg"></div><div class="progress-line-fill" style="width: ${percent}%;"></div><div class="progress-steps">${steps.map((s,i)=>{ let cls = "step"; if(i < activeIdx) cls += " completed"; if(i === activeIdx) cls += " active"; return `<div class="${cls}"><div class="step-icon"><i class="fas ${icons[s]}"></i></div><div class="step-label">${labels[s]}</div></div>`; }).join('')}</div></div><div class="items-preview-section"><strong><i class="fas fa-shopping-basket"></i> Items:</strong>${itemsPreview}</div><div style="font-size:0.65rem; margin-top:6px;"><i class="fas fa-map-pin"></i> ${order.address?.substring(0,60) || 'Address'}</div>${canCancel ? `<button class="cancel-order-btn" data-order-id="${order.id}" data-tracking="${order.trackingNumber}"><i class="fas fa-times-circle"></i> Cancel Order (Before Shipping)</button>` : ''}</div>`;
+                }
             });
             container.innerHTML = html;
+            document.querySelectorAll('.cancel-order-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const orderId = btn.dataset.orderId;
+                    const tracking = btn.dataset.tracking;
+                    cancelOrder(orderId, tracking);
+                });
+            });
         });
     }
     
@@ -615,9 +861,16 @@
     document.getElementById("profileBtn").onclick = openProfileDrawer;
     document.getElementById("editAddressFromProfile")?.addEventListener("click", ()=>{ closeProfileDrawer(); openAddressModalFlow(); });
     function openAddressModalFlow() { closePremiumDrawer(); autoFillModal(); document.getElementById("addressModal").classList.add("active"); }
-    function closeAddressModal() { document.getElementById("addressModal").classList.remove("active"); }
+    function closeAddressModal() { document.getElementById("addressModal").classList.remove("open"); document.getElementById("addressModal").classList.remove("active"); }
     
-    window.showForgotPasswordModal = function() { /* full forgot password */ const modalDiv = document.createElement('div'); modalDiv.className = 'auth-modal-global'; modalDiv.innerHTML = `<div class="auth-card"><i class="fas fa-key" style="font-size:2rem;"></i><h3>Reset Password</h3><input id="resetEmail" placeholder="Email"><button id="sendResetBtn">Send Reset Link</button><p><span id="backToLoginLink" class="toggle-link">← Back to Login</span></p><button id="closeResetModalBtn" style="background:#e9dbcf;">Cancel</button></div>`; document.body.appendChild(modalDiv); setTimeout(()=>modalDiv.classList.add('active'),10); modalDiv.querySelector('#sendResetBtn').onclick = async () => { const email = modalDiv.querySelector('#resetEmail').value.trim(); if(!email) return alert("Enter email"); try { await sendPasswordResetEmail(auth, email); alert(`Reset link sent to ${email}`); modalDiv.classList.remove('active'); setTimeout(()=>modalDiv.remove(),200); window.showAuthModal(true); } catch(e) { alert(e.message); } }; modalDiv.querySelector('#backToLoginLink').onclick = () => { modalDiv.classList.remove('active'); setTimeout(()=>{ modalDiv.remove(); window.showAuthModal(true); },200); }; modalDiv.querySelector('#closeResetModalBtn').onclick = () => { modalDiv.classList.remove('active'); setTimeout(()=>modalDiv.remove(),200); }; };
+    window.showForgotPasswordModal = function() {
+        const modalDiv = document.createElement('div'); modalDiv.className = 'auth-modal-global';
+        modalDiv.innerHTML = `<div class="auth-card"><i class="fas fa-key" style="font-size:2rem;"></i><h3>Reset Password</h3><input id="resetEmail" placeholder="Email"><button id="sendResetBtn">Send Reset Link</button><p><span id="backToLoginLink" class="toggle-link">← Back to Login</span></p><button id="closeResetModalBtn" style="background:#e9dbcf;">Cancel</button></div>`;
+        document.body.appendChild(modalDiv); setTimeout(()=>modalDiv.classList.add('active'),10);
+        modalDiv.querySelector('#sendResetBtn').onclick = async () => { const email = modalDiv.querySelector('#resetEmail').value.trim(); if(!email) return alert("Enter email"); try { await sendPasswordResetEmail(auth, email); alert(`Reset link sent to ${email}`); modalDiv.classList.remove('active'); setTimeout(()=>modalDiv.remove(),200); window.showAuthModal(true); } catch(e) { alert(e.message); } };
+        modalDiv.querySelector('#backToLoginLink').onclick = () => { modalDiv.classList.remove('active'); setTimeout(()=>{ modalDiv.remove(); window.showAuthModal(true); },200); };
+        modalDiv.querySelector('#closeResetModalBtn').onclick = () => { modalDiv.classList.remove('active'); setTimeout(()=>modalDiv.remove(),200); };
+    };
     
     window.showAuthModal = function(loginMode=true) {
         const modalDiv = document.createElement('div'); modalDiv.className = 'auth-modal-global';
@@ -639,8 +892,8 @@
     
     onAuthStateChanged(auth, (user) => {
         currentUser = user;
-        if(!user) { cartItems = []; updateCartCount(); document.getElementById("profileEmailDisplay").innerHTML = '<i class="fas fa-user-slash"></i> Not logged in'; document.getElementById("orderHistoryList").innerHTML = '<div style="padding:1.5rem;text-align:center;">🔐 Login to view orders</div>'; document.getElementById("savedAddressDisplay").innerHTML = "No saved address yet."; }
-        else { document.getElementById("profileEmailDisplay").innerHTML = `<i class="fas fa-check-circle" style="color:#2c7a2c;"></i> ${user.email}`; updateProfileUI(); loadOrderHistory(); }
+        if(!user) { cartItems = []; updateCartCount(); document.getElementById("profileEmailDisplay").innerHTML = '<i class="fas fa-user-slash"></i> Not logged in'; document.getElementById("orderHistoryList").innerHTML = '<div style="padding:1.5rem;text-align:center;">🔐 Login to view orders</div>'; document.getElementById("savedAddressDisplay").innerHTML = "No saved address yet."; savedAddressData = null; }
+        else { document.getElementById("profileEmailDisplay").innerHTML = `<i class="fas fa-check-circle" style="color:#2c7a2c;"></i> ${user.email}`; updateProfileUI(); loadOrderHistory(); loadUserAddress(); }
         updateCartCount(); updateProfileAction();
     });
     renderProducts();
