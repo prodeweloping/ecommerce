@@ -2,18 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ram Store Admin | Manage Orders & Parcel Tracking</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Ram Store Admin | Smart Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background: #fef7f0;
-            padding: 2rem;
+            padding: 1.5rem;
         }
-        .admin-container { max-width: 1400px; margin: 0 auto; }
+
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
         .admin-header {
             display: flex;
             justify-content: space-between;
@@ -23,21 +34,202 @@
             padding-bottom: 1rem;
             border-bottom: 2px solid #e9cfbb;
         }
-        .admin-header h1 { display: flex; align-items: center; gap: 12px; color: #7b3a1a; }
-        .stats { display: flex; gap: 1rem; flex-wrap: wrap; }
-        .stat-badge { background: #2c1a0e; color: white; padding: 6px 16px; border-radius: 40px; font-size: 0.8rem; }
-        .refresh-btn { background: #b5521d; border: none; padding: 8px 20px; border-radius: 40px; color: white; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-        .section-title { font-size: 1.2rem; margin: 1rem 0 1rem 0; display: flex; align-items: center; gap: 8px; }
-        .orders-grid { display: flex; flex-direction: column; gap: 1rem; }
+
+        .admin-header h1 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #7b3a1a;
+            font-weight: 700;
+        }
+
+        .stats-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .stat-badge {
+            background: #2c1a0e;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .refresh-btn, .logout-btn {
+            background: #b5521d;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            color: white;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .logout-btn {
+            background: #e05a2a;
+        }
+
+        .refresh-btn:hover, .logout-btn:hover {
+            filter: brightness(0.92);
+            transform: translateY(-1px);
+        }
+
+        /* 3 Summary Cards Dashboard */
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 28px;
+            padding: 1.4rem 1.6rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            border: 1px solid #f0e2d4;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.03);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 30px rgba(0, 0, 0, 0.08);
+            border-color: #e2ccb8;
+            background: #fffbf7;
+        }
+
+        .card-info h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #8a684b;
+            letter-spacing: -0.2px;
+            margin-bottom: 8px;
+        }
+
+        .card-count {
+            font-size: 2.6rem;
+            font-weight: 800;
+            color: #2c1a0e;
+            line-height: 1;
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            color: #e9cfbb;
+            transition: 0.2s;
+        }
+
+        .summary-card:hover .card-icon {
+            color: #b5521d;
+            transform: scale(1.03);
+        }
+
+        /* Accordion sections (category boxes) */
+        .category-section {
+            margin-bottom: 1.8rem;
+            border-radius: 32px;
+            background: white;
+            border: 1px solid #f0e2d4;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.8rem;
+            background: #ffffff;
+            cursor: pointer;
+            border-bottom: 1px solid transparent;
+            transition: background 0.2s;
+        }
+
+        .category-header:hover {
+            background: #fefaf5;
+        }
+
+        .category-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #7b3a1a;
+        }
+
+        .category-badge {
+            background: #2c1a0e;
+            color: white;
+            border-radius: 60px;
+            padding: 4px 14px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .toggle-icon {
+            font-size: 1.3rem;
+            color: #b88c68;
+            transition: transform 0.3s ease;
+        }
+
+        .category-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #fefbf7;
+            border-top: 1px solid transparent;
+        }
+
+        .category-section.open .category-content {
+            max-height: 2000px;
+            border-top-color: #f0e2d4;
+        }
+
+        .category-section.open .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .orders-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding: 1.5rem;
+        }
+
+        /* Order card styling */
         .order-card {
             background: white;
             border-radius: 24px;
             padding: 1.2rem;
             border: 1px solid #f0e2d4;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-            position: relative;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+            transition: all 0.2s;
         }
-        .order-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 1rem; gap: 8px; }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+            gap: 8px;
+        }
+
         .tracking-badge {
             font-family: monospace;
             background: #2c1a0e;
@@ -46,6 +238,7 @@
             border-radius: 30px;
             font-size: 0.75rem;
         }
+
         .parcel-input-group {
             display: flex;
             gap: 10px;
@@ -53,6 +246,7 @@
             flex-wrap: wrap;
             margin-top: 10px;
         }
+
         .parcel-input {
             flex: 2;
             padding: 8px 16px;
@@ -60,29 +254,123 @@
             border: 1px solid #e9cfbb;
             font-family: monospace;
         }
-        .order-date { font-size: 0.75rem; color: #8a684b; }
-        .order-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin: 1rem 0; }
-        .detail-box { background: #fefbf7; border-radius: 20px; padding: 0.8rem; }
-        .detail-label { font-size: 0.7rem; text-transform: uppercase; color: #b2764a; font-weight: 600; }
-        .status-select { padding: 8px 16px; border-radius: 60px; border: 1px solid #e9cfbb; font-weight: 600; cursor: pointer; }
-        .update-btn, .set-parcel-btn { background: #2c1a0e; color: white; border: none; padding: 8px 20px; border-radius: 60px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
-        .update-btn:hover, .set-parcel-btn:hover { background: #b5521d; }
-        .delete-btn { background: #e05a2a; color: white; border: none; padding: 8px 20px; border-radius: 60px; cursor: pointer; margin-left: 10px; display: inline-flex; align-items: center; gap: 6px; }
-        .delete-btn:hover { background: #c0392b; }
-        .two-columns { display: flex; gap: 2rem; flex-wrap: wrap; }
-        .column { flex: 1; min-width: 300px; }
-        .pending-card { border-left: 5px solid #e05a2a; }
-        .delivered-card { border-left: 5px solid #2c7a2c; }
-        .status-badge { display: inline-block; padding: 4px 14px; border-radius: 30px; font-size: 0.7rem; font-weight: 600; }
-        .status-ordered { background: #f0c9a3; color: #7b3a1a; }
-        .status-shipped { background: #b8cfec; color: #1a4f7a; }
-        .status-out_for_delivery { background: #ffe0a3; color: #b55b2c; }
-        .status-delivered { background: #b8e0b8; color: #2a6b2a; }
-        .shipping-progress { display: flex; justify-content: space-between; margin: 10px 0; font-size: 0.65rem; }
-        .progress-step { text-align: center; flex: 1; }
-        .progress-step.active { color: #b5521d; font-weight: bold; }
-        .progress-step.completed { color: #2c7a2c; }
-        .btn-loading { opacity: 0.7; cursor: not-allowed; }
+
+        .order-date {
+            font-size: 0.75rem;
+            color: #8a684b;
+        }
+
+        .order-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .detail-box {
+            background: #fefbf7;
+            border-radius: 20px;
+            padding: 0.8rem;
+        }
+
+        .detail-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: #b2764a;
+            font-weight: 600;
+        }
+
+        .status-select {
+            padding: 8px 16px;
+            border-radius: 60px;
+            border: 1px solid #e9cfbb;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .update-btn, .set-parcel-btn {
+            background: #2c1a0e;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 60px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+
+        .update-btn:hover, .set-parcel-btn:hover {
+            background: #b5521d;
+        }
+
+        .delete-btn {
+            background: #e05a2a;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 60px;
+            cursor: pointer;
+            margin-left: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .delete-btn:hover {
+            background: #c0392b;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .status-ordered {
+            background: #f0c9a3;
+            color: #7b3a1a;
+        }
+
+        .status-shipped {
+            background: #b8cfec;
+            color: #1a4f7a;
+        }
+
+        .status-out_for_delivery {
+            background: #ffe0a3;
+            color: #b55b2c;
+        }
+
+        .status-delivered {
+            background: #b8e0b8;
+            color: #2a6b2a;
+        }
+
+        .shipping-progress {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-size: 0.65rem;
+        }
+
+        .progress-step {
+            text-align: center;
+            flex: 1;
+        }
+
+        .progress-step.active {
+            color: #b5521d;
+            font-weight: bold;
+        }
+
+        .progress-step.completed {
+            color: #2c7a2c;
+        }
+
         .spinner {
             width: 16px;
             height: 16px;
@@ -92,10 +380,22 @@
             animation: spin 0.8s linear infinite;
             display: inline-block;
         }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        .empty-message {
+            text-align: center;
+            padding: 2.5rem;
+            background: white;
+            border-radius: 28px;
+            color: #b88c68;
+            font-weight: 500;
+        }
+
+        /* Modals */
         .delete-modal, .login-overlay {
             position: fixed;
             top: 0;
@@ -112,7 +412,12 @@
             opacity: 0;
             transition: 0.2s;
         }
-        .delete-modal.active, .login-overlay.active { visibility: visible; opacity: 1; }
+
+        .delete-modal.active, .login-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
         .delete-card, .login-card {
             background: white;
             border-radius: 48px;
@@ -121,6 +426,7 @@
             max-width: 420px;
             text-align: center;
         }
+
         .delete-card input, .login-card input {
             width: 100%;
             padding: 14px;
@@ -129,38 +435,146 @@
             border: 1px solid #e9dbcf;
             text-align: center;
         }
-        .warning { color: #e05a2a; margin-bottom: 15px; }
-        .delete-buttons, .login-buttons { display: flex; gap: 12px; }
-        .confirm-delete { background: #e05a2a; color: white; border: none; padding: 12px; border-radius: 60px; cursor: pointer; flex: 1; font-weight: 700; }
-        .cancel-delete { background: #e9dfd6; color: #4f2a10; border: none; padding: 12px; border-radius: 60px; cursor: pointer; flex: 1; font-weight: 700; }
-        footer { margin-top: 2rem; text-align: center; font-size: 0.7rem; color: #b88c68; }
+
+        .warning {
+            color: #e05a2a;
+            margin-bottom: 15px;
+        }
+
+        .delete-buttons, .login-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .confirm-delete {
+            background: #e05a2a;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 60px;
+            cursor: pointer;
+            flex: 1;
+            font-weight: 700;
+        }
+
+        .cancel-delete {
+            background: #e9dfd6;
+            color: #4f2a10;
+            border: none;
+            padding: 12px;
+            border-radius: 60px;
+            cursor: pointer;
+            flex: 1;
+            font-weight: 700;
+        }
+
+        footer {
+            margin-top: 2rem;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #b88c68;
+        }
+
+        .highlight {
+            animation: highlight-pulse 0.6s ease;
+        }
+
+        @keyframes highlight-pulse {
+            0% { box-shadow: 0 0 0 0 rgba(181, 82, 29, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(181, 82, 29, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(181, 82, 29, 0); }
+        }
+
+        @media (max-width: 680px) {
+            body {
+                padding: 1rem;
+            }
+            .category-header {
+                padding: 0.8rem 1.2rem;
+            }
+            .orders-grid {
+                padding: 1rem;
+            }
+            .order-details {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
 <div class="admin-container">
     <div class="admin-header">
         <h1><i class="fas fa-chalkboard-user"></i> Ram Store Admin</h1>
-        <div class="stats">
-            <div class="stat-badge" id="pendingCount">Pending: --</div>
-            <div class="stat-badge" id="deliveredCount">Delivered: --</div>
+        <div class="stats-actions">
+            <div class="stat-badge" id="totalOrdersBadge">Total: --</div>
             <button class="refresh-btn" id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
-            <button class="refresh-btn" id="logoutAdminBtn" style="background:#e05a2a;"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            <button class="logout-btn" id="logoutAdminBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </div>
     </div>
 
-    <div class="two-columns">
-        <div class="column">
-            <div class="section-title"><i class="fas fa-clock"></i> 📋 Pending Orders</div>
-            <div id="pendingOrdersList" class="orders-grid">Loading orders...</div>
+    <!-- 3 Summary Cards Dashboard -->
+    <div class="dashboard-cards">
+        <div class="summary-card" data-category="new">
+            <div class="card-info">
+                <h3><i class="fas fa-clipboard-list"></i> New Orders</h3>
+                <div class="card-count" id="newCountBadge">0</div>
+                <small style="color:#b2764a;">ordered</small>
+            </div>
+            <div class="card-icon"><i class="fas fa-spa"></i></div>
         </div>
-        <div class="column">
-            <div class="section-title"><i class="fas fa-check-circle"></i> ✅ Delivered Orders</div>
+        <div class="summary-card" data-category="shipping">
+            <div class="card-info">
+                <h3><i class="fas fa-truck-moving"></i> Shipping Orders</h3>
+                <div class="card-count" id="shippingCountBadge">0</div>
+                <small style="color:#b2764a;">shipped / out_for_delivery</small>
+            </div>
+            <div class="card-icon"><i class="fas fa-shipping-fast"></i></div>
+        </div>
+        <div class="summary-card" data-category="delivered">
+            <div class="card-info">
+                <h3><i class="fas fa-check-double"></i> Successfully Delivered</h3>
+                <div class="card-count" id="deliveredCountBadge">0</div>
+                <small style="color:#b2764a;">delivered</small>
+            </div>
+            <div class="card-icon"><i class="fas fa-map-marked-alt"></i></div>
+        </div>
+    </div>
+
+    <!-- Accordion Sections: New, Shipping, Delivered -->
+    <div id="newOrdersSection" class="category-section">
+        <div class="category-header">
+            <div class="category-title"><i class="fas fa-clipboard-list"></i> 🆕 New Orders <span class="category-badge" id="newSectionCount">0</span></div>
+            <i class="fas fa-chevron-down toggle-icon"></i>
+        </div>
+        <div class="category-content">
+            <div id="newOrdersList" class="orders-grid">Loading orders...</div>
+        </div>
+    </div>
+
+    <div id="shippingOrdersSection" class="category-section">
+        <div class="category-header">
+            <div class="category-title"><i class="fas fa-truck"></i> 📦 Shipping Orders <span class="category-badge" id="shippingSectionCount">0</span></div>
+            <i class="fas fa-chevron-down toggle-icon"></i>
+        </div>
+        <div class="category-content">
+            <div id="shippingOrdersList" class="orders-grid">Loading orders...</div>
+        </div>
+    </div>
+
+    <div id="deliveredOrdersSection" class="category-section">
+        <div class="category-header">
+            <div class="category-title"><i class="fas fa-check-circle"></i> ✅ Delivered Orders <span class="category-badge" id="deliveredSectionCount">0</span></div>
+            <i class="fas fa-chevron-down toggle-icon"></i>
+        </div>
+        <div class="category-content">
             <div id="deliveredOrdersList" class="orders-grid">Loading orders...</div>
         </div>
     </div>
-    <footer><i class="fas fa-truck-fast"></i> Update status & Add Parcel Tracking Number (Courier ID) → Customer sees it</footer>
+
+    <footer><i class="fas fa-truck-fast"></i> Update status & Add Parcel Tracking → Customer sees it</footer>
 </div>
 
+<!-- Delete Modal -->
 <div id="deleteModal" class="delete-modal">
     <div class="delete-card">
         <i class="fas fa-trash-alt" style="font-size: 3rem; color: #e05a2a;"></i>
@@ -175,6 +589,7 @@
     </div>
 </div>
 
+<!-- Login Overlay -->
 <div id="loginOverlay" class="login-overlay">
     <div class="login-card">
         <i class="fas fa-lock" style="font-size: 2.5rem; color: #b5521d;"></i>
@@ -217,25 +632,7 @@
     let pendingDeleteOrderId = null;
     const loginOverlay = document.getElementById("loginOverlay");
     const deleteModal = document.getElementById("deleteModal");
-
-    function showLoading(btnId) {
-        const btn = document.getElementById(btnId);
-        if (btn && !btn.disabled) {
-            const originalText = btn.innerHTML;
-            btn.setAttribute('data-original', originalText);
-            btn.innerHTML = '<span class="spinner"></span> Loading...';
-            btn.disabled = true;
-        }
-    }
-
-    function hideLoading(btnId) {
-        const btn = document.getElementById(btnId);
-        if (btn) {
-            const original = btn.getAttribute('data-original');
-            if (original) btn.innerHTML = original;
-            btn.disabled = false;
-        }
-    }
+    let allOrdersRaw = [];
 
     window.openDeleteModal = (orderId) => {
         pendingDeleteOrderId = orderId;
@@ -263,7 +660,7 @@
             await deleteDoc(doc(db, "orders", pendingDeleteOrderId));
             alert("✅ Order deleted successfully!");
             closeDeleteModal();
-            loadOrders();
+            await loadOrders();
         } catch (error) {
             alert("❌ Delete failed: " + error.message);
         } finally {
@@ -288,7 +685,7 @@
         try {
             await updateDoc(doc(db, "orders", orderId), { parcelTrackingNumber: parcelNumber });
             alert(`✅ Parcel tracking number ${parcelNumber} added!\nCustomer can now see it.`);
-            loadOrders();
+            await loadOrders();
         } catch (error) {
             alert("Failed: " + error.message);
         } finally {
@@ -302,98 +699,115 @@
         try {
             const q = query(collection(db, "orders"), orderBy("date", "desc"));
             const snapshot = await getDocs(q);
-            const pending = [], delivered = [];
+            const orders = [];
             snapshot.forEach(docSnap => {
-                const order = { id: docSnap.id, ...docSnap.data() };
-                const tracking = order.trackingStatus || "ordered";
-                if (tracking === "delivered") delivered.push(order);
-                else pending.push(order);
+                orders.push({ id: docSnap.id, ...docSnap.data() });
             });
-            renderPending(pending);
-            renderDelivered(delivered);
-            document.getElementById("pendingCount").innerHTML = `Pending: ${pending.length}`;
-            document.getElementById("deliveredCount").innerHTML = `Delivered: ${delivered.length}`;
+            allOrdersRaw = orders;
+            renderCategoryViews(orders);
+            updateSummaryCards(orders);
         } catch (err) {
             console.error("Error:", err);
-            document.getElementById("pendingOrdersList").innerHTML = "<div style='text-align:center;padding:2rem;color:red;'>Error loading orders</div>";
+            document.getElementById("newOrdersList").innerHTML = "<div class='empty-message'><i class='fas fa-exclamation-triangle'></i> Error loading orders</div>";
+            document.getElementById("shippingOrdersList").innerHTML = "<div class='empty-message'>Error</div>";
+            document.getElementById("deliveredOrdersList").innerHTML = "<div class='empty-message'>Error</div>";
         }
     }
 
-    function renderPending(orders) {
-        const container = document.getElementById("pendingOrdersList");
-        if (orders.length === 0) { 
-            container.innerHTML = "<div style='text-align:center;padding:2rem;'>🎉 No pending orders</div>"; 
-            return; 
+    function updateSummaryCards(orders) {
+        const newOrdersCount = orders.filter(o => (o.trackingStatus || o.status || "ordered") === "ordered").length;
+        const shippingCount = orders.filter(o => {
+            const st = (o.trackingStatus || o.status || "ordered");
+            return st === "shipped" || st === "out_for_delivery";
+        }).length;
+        const deliveredCount = orders.filter(o => (o.trackingStatus || o.status || "ordered") === "delivered").length;
+        document.getElementById("newCountBadge").innerText = newOrdersCount;
+        document.getElementById("shippingCountBadge").innerText = shippingCount;
+        document.getElementById("deliveredCountBadge").innerText = deliveredCount;
+        document.getElementById("totalOrdersBadge").innerHTML = `Total: ${orders.length}`;
+        document.getElementById("newSectionCount").innerText = newOrdersCount;
+        document.getElementById("shippingSectionCount").innerText = shippingCount;
+        document.getElementById("deliveredSectionCount").innerText = deliveredCount;
+    }
+
+    function renderCategoryViews(orders) {
+        const newOrders = orders.filter(o => (o.trackingStatus || o.status || "ordered") === "ordered");
+        const shippingOrders = orders.filter(o => {
+            const st = (o.trackingStatus || o.status || "ordered");
+            return st === "shipped" || st === "out_for_delivery";
+        });
+        const deliveredOrders = orders.filter(o => (o.trackingStatus || o.status || "ordered") === "delivered");
+        
+        renderOrderList("newOrdersList", newOrders, false);
+        renderOrderList("shippingOrdersList", shippingOrders, false);
+        renderOrderList("deliveredOrdersList", deliveredOrders, true);
+    }
+
+    function renderOrderList(containerId, orders, isDeliveredSection = false) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        if (orders.length === 0) {
+            container.innerHTML = `<div class="empty-message"><i class="fas fa-inbox"></i> No Orders Found</div>`;
+            return;
         }
         let html = "";
         orders.forEach(order => {
-            const currentStatus = order.trackingStatus || "ordered";
+            const currentStatus = order.trackingStatus || order.status || "ordered";
             const statusIndex = statusOptions.indexOf(currentStatus);
             const trackingNum = order.trackingNumber || `RAM01${order.id.slice(0, 10)}`;
             const currentParcel = order.parcelTrackingNumber || "";
             
-            html += `
-                <div class="order-card pending-card">
-                    <div class="order-header">
-                        <div><span class="tracking-badge"><i class="fas fa-barcode"></i> ${trackingNum}</span></div>
-                        <span class="order-date">${order.date?.toDate?.()?.toLocaleString() || "Just now"}</span>
-                        <span class="status-badge status-${currentStatus.replace(/_/g, '-')}">${statusLabels[currentStatus]}</span>
+            if (isDeliveredSection) {
+                html += `
+                    <div class="order-card delivered-card">
+                        <div class="order-header">
+                            <div><span class="tracking-badge"><i class="fas fa-barcode"></i> ${trackingNum}</span></div>
+                            <span class="order-date">${order.date?.toDate?.()?.toLocaleString() || "Recent"}</span>
+                            <span class="status-badge status-delivered">✅ Delivered</span>
+                        </div>
+                        <div class="order-details">
+                            <div class="detail-box"><div class="detail-label">Customer</div><div><strong>${order.customerName || "Guest"}</strong></div><div style="font-size:0.7rem;">${order.customerEmail || ""}</div></div>
+                            <div class="detail-box"><div class="detail-label">Parcel Tracking</div><div><strong><i class="fas fa-shipping-fast"></i> ${currentParcel || "Not set"}</strong></div></div>
+                            <div class="detail-box"><div class="detail-label">Items</div><div>${order.items?.map(i => i.name).join(", ") || "-"}<br><strong>₹${order.totalAmount || 0}</strong></div></div>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <button class="delete-btn" onclick="window.openDeleteModal('${order.id}')"><i class="fas fa-trash-alt"></i> Delete Order</button>
+                        </div>
                     </div>
-                    <div class="shipping-progress">
-                        <div class="progress-step ${statusIndex >= 0 ? 'completed' : ''}">📦 Ordered</div>
-                        <div class="progress-step ${statusIndex >= 1 ? 'completed' : ''} ${statusIndex === 1 ? 'active' : ''}">🚚 Shipped</div>
-                        <div class="progress-step ${statusIndex >= 2 ? 'completed' : ''} ${statusIndex === 2 ? 'active' : ''}">🏠 Out for delivery</div>
-                        <div class="progress-step ${statusIndex >= 3 ? 'completed' : ''} ${statusIndex === 3 ? 'active' : ''}">✅ Delivered</div>
+                `;
+            } else {
+                html += `
+                    <div class="order-card pending-card">
+                        <div class="order-header">
+                            <div><span class="tracking-badge"><i class="fas fa-barcode"></i> ${trackingNum}</span></div>
+                            <span class="order-date">${order.date?.toDate?.()?.toLocaleString() || "Just now"}</span>
+                            <span class="status-badge status-${currentStatus.replace(/_/g, '-')}">${statusLabels[currentStatus]}</span>
+                        </div>
+                        <div class="shipping-progress">
+                            <div class="progress-step ${statusIndex >= 0 ? 'completed' : ''}">📦 Ordered</div>
+                            <div class="progress-step ${statusIndex >= 1 ? 'completed' : ''} ${statusIndex === 1 ? 'active' : ''}">🚚 Shipped</div>
+                            <div class="progress-step ${statusIndex >= 2 ? 'completed' : ''} ${statusIndex === 2 ? 'active' : ''}">🏠 Out for delivery</div>
+                            <div class="progress-step ${statusIndex >= 3 ? 'completed' : ''} ${statusIndex === 3 ? 'active' : ''}">✅ Delivered</div>
+                        </div>
+                        <div class="order-details">
+                            <div class="detail-box"><div class="detail-label">Customer</div><div><strong>${order.customerName || "Guest"}</strong></div><div style="font-size:0.7rem;">${order.customerEmail || ""}</div></div>
+                            <div class="detail-box"><div class="detail-label">Address</div><div style="font-size:0.85rem;">${order.address?.substring(0, 100) || "No address"}</div></div>
+                            <div class="detail-box"><div class="detail-label">Items</div><div>${order.items?.map(i => i.name).join(", ") || "-"}</div><div><strong>Total: ₹${order.totalAmount || 0}</strong></div></div>
+                        </div>
+                        <div class="parcel-input-group">
+                            <input type="text" id="parcel_input_${order.id}" class="parcel-input" placeholder="Parcel Tracking Number (e.g., INDIA123456)" value="${currentParcel}">
+                            <button class="set-parcel-btn" id="parcel_btn_${order.id}" onclick="window.setParcelNumber('${order.id}')"><i class="fas fa-truck"></i> Set Parcel ID</button>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <select id="statusSelect_${order.id}" class="status-select">
+                                ${statusOptions.map(opt => `<option value="${opt}" ${currentStatus === opt ? 'selected' : ''}>${statusLabels[opt]} - ${statusMessages[opt]}</option>`).join('')}
+                            </select>
+                            <button class="update-btn" onclick="window.updateOrderStatus('${order.id}')"><i class="fas fa-save"></i> Update</button>
+                            <button class="delete-btn" onclick="window.openDeleteModal('${order.id}')"><i class="fas fa-trash-alt"></i> Delete</button>
+                        </div>
                     </div>
-                    <div class="order-details">
-                        <div class="detail-box"><div class="detail-label">Customer</div><div><strong>${order.customerName || "Guest"}</strong></div><div style="font-size:0.7rem;">${order.customerEmail || ""}</div></div>
-                        <div class="detail-box"><div class="detail-label">Address</div><div style="font-size:0.85rem;">${order.address?.substring(0, 100) || "No address"}</div></div>
-                        <div class="detail-box"><div class="detail-label">Items</div><div>${order.items?.map(i => i.name).join(", ") || "-"}</div><div><strong>Total: ₹${order.totalAmount || 0}</strong></div></div>
-                    </div>
-                    <div class="parcel-input-group">
-                        <input type="text" id="parcel_input_${order.id}" class="parcel-input" placeholder="Parcel Tracking Number (e.g., INDIA123456)" value="${currentParcel}">
-                        <button class="set-parcel-btn" id="parcel_btn_${order.id}" onclick="window.setParcelNumber('${order.id}')"><i class="fas fa-truck"></i> Set Parcel ID</button>
-                    </div>
-                    <div style="margin-top: 10px;">
-                        <select id="statusSelect_${order.id}" class="status-select">
-                            ${statusOptions.map(opt => `<option value="${opt}" ${currentStatus === opt ? 'selected' : ''}>${statusLabels[opt]} - ${statusMessages[opt]}</option>`).join('')}
-                        </select>
-                        <button class="update-btn" onclick="window.updateOrderStatus('${order.id}')"><i class="fas fa-save"></i> Update</button>
-                        <button class="delete-btn" onclick="window.openDeleteModal('${order.id}')"><i class="fas fa-trash-alt"></i> Delete</button>
-                    </div>
-                </div>
-            `;
-        });
-        container.innerHTML = html;
-    }
-
-    function renderDelivered(orders) {
-        const container = document.getElementById("deliveredOrdersList");
-        if (orders.length === 0) { 
-            container.innerHTML = "<div style='text-align:center;padding:2rem;'>📭 No delivered orders</div>"; 
-            return; 
-        }
-        let html = "";
-        orders.forEach(order => {
-            const trackingNum = order.trackingNumber || `RAM01${order.id.slice(0, 10)}`;
-            const parcelNum = order.parcelTrackingNumber || "Not set";
-            html += `
-                <div class="order-card delivered-card">
-                    <div class="order-header">
-                        <div><span class="tracking-badge"><i class="fas fa-barcode"></i> ${trackingNum}</span></div>
-                        <span class="order-date">${order.date?.toDate?.()?.toLocaleString() || "Recent"}</span>
-                        <span class="status-badge status-delivered">✅ Delivered</span>
-                    </div>
-                    <div class="order-details">
-                        <div class="detail-box"><div class="detail-label">Customer</div><div><strong>${order.customerName || "Guest"}</strong></div></div>
-                        <div class="detail-box"><div class="detail-label">Parcel Tracking</div><div><strong><i class="fas fa-shipping-fast"></i> ${parcelNum}</strong></div></div>
-                        <div class="detail-box"><div class="detail-label">Items</div><div>${order.items?.map(i => i.name).join(", ") || "-"}<br><strong>₹${order.totalAmount}</strong></div></div>
-                    </div>
-                    <div style="margin-top: 10px;">
-                        <button class="delete-btn" onclick="window.openDeleteModal('${order.id}')"><i class="fas fa-trash-alt"></i> Delete Order</button>
-                    </div>
-                </div>
-            `;
+                `;
+            }
         });
         container.innerHTML = html;
     }
@@ -403,13 +817,14 @@
         if (!select) return;
         const newStatus = select.value;
         const btn = document.querySelector(`button[onclick="window.updateOrderStatus('${orderId}')"]`);
+        if (!btn) return;
         const originalHtml = btn.innerHTML;
         btn.innerHTML = '<span class="spinner"></span> Updating...';
         btn.disabled = true;
         try {
             await updateDoc(doc(db, "orders", orderId), { trackingStatus: newStatus, status: newStatus });
             alert(`✅ Status updated to ${statusLabels[newStatus]}\n${statusMessages[newStatus]}`);
-            loadOrders();
+            await loadOrders();
         } catch(e) { 
             alert("Update failed: " + e.message); 
         } finally {
@@ -420,7 +835,65 @@
 
     window.setParcelNumber = setParcelNumber;
 
-    document.getElementById("refreshBtn").addEventListener("click", loadOrders);
+    // Function to open a specific section with animation
+    function openSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        if (section) {
+            // Close all sections first (optional - uncomment if you want only one open at a time)
+            // document.querySelectorAll('.category-section').forEach(sec => {
+            //     if (sec.id !== sectionId) sec.classList.remove('open');
+            // });
+            
+            // Open the clicked section if not already open
+            if (!section.classList.contains('open')) {
+                section.classList.add('open');
+            }
+            
+            // Add highlight animation
+            section.classList.add('highlight');
+            setTimeout(() => {
+                section.classList.remove('highlight');
+            }, 600);
+            
+            // Smooth scroll to section
+            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+
+    // Setup accordion toggles
+    function setupAccordions() {
+        const sections = document.querySelectorAll('.category-section');
+        sections.forEach(section => {
+            const header = section.querySelector('.category-header');
+            header.addEventListener('click', (e) => {
+                e.stopPropagation();
+                section.classList.toggle('open');
+            });
+        });
+    }
+
+    // Setup summary card clicks - opens respective section
+    function setupSummaryCardClick() {
+        const mapping = {
+            'new': 'newOrdersSection',
+            'shipping': 'shippingOrdersSection',
+            'delivered': 'deliveredOrdersSection'
+        };
+        document.querySelectorAll('.summary-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const cat = card.getAttribute('data-category');
+                if (cat && mapping[cat]) {
+                    openSection(mapping[cat]);
+                }
+            });
+        });
+    }
+
+    // Refresh button
+    document.getElementById("refreshBtn").addEventListener("click", () => {
+        if (isAdminLoggedIn) loadOrders();
+    });
+    
     document.getElementById("logoutAdminBtn").addEventListener("click", async () => {
         await signOut(auth);
         isAdminLoggedIn = false;
@@ -439,7 +912,9 @@
             if (email === ADMIN_EMAIL) {
                 isAdminLoggedIn = true;
                 loginOverlay.classList.remove("active");
-                loadOrders();
+                await loadOrders();
+                setupAccordions();
+                setupSummaryCardClick();
             } else {
                 alert("Access denied. Admin only.");
                 await signOut(auth);
@@ -452,11 +927,13 @@
         }
     };
 
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
         if (user && user.email === ADMIN_EMAIL) {
             isAdminLoggedIn = true;
             loginOverlay.classList.remove("active");
-            loadOrders();
+            await loadOrders();
+            setupAccordions();
+            setupSummaryCardClick();
         } else {
             isAdminLoggedIn = false;
             loginOverlay.classList.add("active");
